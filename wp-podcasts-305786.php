@@ -87,9 +87,39 @@ if ( is_admin() ) {
 
 	// include dependencies
 	require_once plugin_dir_path( __FILE__ ) . 'admin/sub-menu-settings.php';
-	require_once plugin_dir_path( __FILE__ ) . 'admin/wp-podcasts-cpt.php';
+	
+	require_once plugin_dir_path( __FILE__ ) . 'admin/wp-podcasts-register-settings.php';
+	require_once plugin_dir_path( __FILE__ ) . 'admin/wp-podcasts-settings-callbacks.php';
+	require_once plugin_dir_path( __FILE__ ) . 'admin/wp-podcasts-settings-validate.php';
 
 }
+	require_once plugin_dir_path( __FILE__ ) . 'admin/wp-podcasts-cpt.php';
+	require_once plugin_dir_path( __FILE__ ) . 'includes/wp-podcasts-core-functions.php';
+	require_once plugin_dir_path( __FILE__ ) . 'admin/wp-podcasts-cpt-meta-box.php';
+
+
+
+// default plugin options
+function wp_podcasts_305786_options_default() {
+
+	return array(
+		'custom_url'     => 'https://christopherbolivar.com/wp-podcasts/',
+		'custom_title'   => 'WP Podcasts',
+		'custom_style'   => 'disable',
+		'custom_message' => '<p class="custom-message">My custom message</p>',
+		'custom_footer'  => 'Special message for users',
+		'custom_toolbar' => false,
+		'custom_scheme'  => 'default',
+	);
+
+}
+
+
+
+
+
+
+
 
 
 
