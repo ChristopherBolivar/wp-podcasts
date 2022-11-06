@@ -2,3 +2,155 @@
  * All of the CSS for your admin-specific functionality should be
  * included in this file.
  */
+ .wp-podcasts-305786_page_wp_podcasts_305786 .wrap {
+    margin: 0 20px 0 2px;
+    background-color: #fff;
+    padding: 1rem;
+    border-radius: 0 0 25px 25px;
+
+  }
+  .wp-has-submenu.wp-has-current-submenu.wp-menu-open.menu-top.menu-icon-wp-podcasts-305786 {
+ 
+
+    background:  rgba(116,108,192,1) !important;
+
+  } 
+  .menu-icon-wp-podcasts-305786 .wp-has-current-submenu::after {
+    display: none;
+  }
+ .import-rss-btn {
+    border: 2px solid #000;
+    padding: 1rem;
+    border-radius: 25px;
+    cursor: pointer;
+    margin-top: 1rem !important;
+    display: inline-block;
+
+ }
+
+ .tab-active {
+    display: block;
+ }
+
+ .tab-deactive {
+    display: none;
+ }
+
+ .wp-pod-cast-settings-page-hero {
+    padding: 3rem;
+    display: flex;
+    margin-left: -2rem;
+    background: rgb(116,108,192);
+    background: linear-gradient(90deg, rgba(116,108,192,1) 50%, rgba(88,66,124,1) 100%); 
+ }
+
+ .wp-pod-cast-settings-page-hero .wp-pod-cast-hero-icon {
+    width: 10%;
+ }
+ .wp-pod-cast-hero-title {
+    width: 90%;
+    align-self: center;
+ }
+
+ .wp-pod-cast-hero-title h1 {
+    font-size: 350%;
+    color: #fff !important;
+ }
+ .wp-pod-cast-hero-title h2 {
+    font-size: 250%;
+    color: #fff !important;
+
+ }
+
+
+ .wp-pod-cast-settings-page-hero .wp-pod-cast-hero-icon span {
+    background-color: #fff;
+    padding: 3rem;
+    font-size: 3rem;
+    display: flex;
+    justify-content: center;
+    border-radius: 100%;
+    color: #000;
+ }
+
+
+  .wp-pod-cast-settings-page-hero .wp-pod-cast-hero-icon span:before {
+    margin: auto;
+    align-self: center;
+    margin-top: -1rem !important;
+  }
+
+
+  
+  .wp_podcasts_305786-settings-accordion > li:first-child {
+    border: none;
+  }
+  
+  .wp_podcasts_305786-settings-accordion > li {
+    position: relative;
+  }
+  
+  .wp_podcasts_305786-settings-accordion .link a {
+    position: relative;
+    display: block;
+    padding: 15px 20px;
+    color: #1b3746;
+    font-weight: bold;
+    text-decoration: none;
+    font-size: 18px;
+  }
+  
+  .wp_podcasts_305786-settings-accordion .active .link > a {
+    background: #1795d8;
+  }
+  
+  .wp_podcasts_305786-settings-accordion .link > a {
+    background: #29a8ec;
+    color: #fff;
+  }
+  
+  .wp_podcasts_305786-settings-accordion .link > a:hover {
+    background: #1795d8;
+  }
+  
+  
+  /* submenu */
+  
+  .submenu {
+    display: none;
+    background: #f8f9f9;
+  }
+  
+  .wp_podcasts_305786-settings-accordion .submenu > li a {
+    display: block;
+    padding: 10px 15px;
+    text-decoration: none;
+    color: #8fa7b3;
+    cursor: pointer;
+  }
+  
+  .wp_podcasts_305786-settings-accordion .submenu > li:first-child {
+    border: none;
+  }
+  
+  .wp_podcasts_305786-settings-accordion .submenu > li {
+    border-top: 1px solid #dae0e0;
+  }
+  
+  .wp_podcasts_305786-settings-accordion .submenu > li a:hover {
+    background: #e6ecec;
+    color: #1795d8;
+    padding: 10px 15px 10px 20px;
+    transition: padding 0.2s ease-in;
+  }
+  
+  .fa {
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
+  }
+  
+  .active .fa {
+    transform: translateY(-50%) rotate(180deg);
+  }

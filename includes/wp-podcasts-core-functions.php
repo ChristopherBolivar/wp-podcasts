@@ -50,8 +50,9 @@ function wp_podcasts_305786_import_rss_feed(){
 			$pubDate = $item->pubDate;
 			$podcastAuthor =  $item->author;
 
+			$existing_episode = get_page_by_path( sanitize_title( $title ), 'OBJECT', 'wp-podcasts-305786');
 	
-			// $existing_dog = get_page_by_path( $dogs_slug , 'OBJECT', 'dogs');
+			if( $existing_episode === null ){
 			$inserted_episodes = wp_insert_post([
 				'post_name' => sanitize_title( $title ),
 				'post_title' =>  esc_html__( $title ),
@@ -68,11 +69,12 @@ function wp_podcasts_305786_import_rss_feed(){
 				)
 
 			]);
+		}
 	}
 	 
 	};
 
-	print_r($rss);
+	print_r($existing_episode);
 
 	die();
 	wp_remote_post( 'admin-ajax.php?action=wp_podcasts_305786_import_rss_feed', [

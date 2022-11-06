@@ -28,5 +28,45 @@
 	 * Although scripts in the WordPress core, Plugins and Themes may be
 	 * practising this, we should strive to set a better example in our own work.
 	 */
+	 
+	 
+	  $( window ).load(function() {
+
+		$('.import-rss-btn').click(function() {
+			$.ajax({
+			  type: "POST",
+			  url: "admin-ajax.php?action=wp_podcasts_305786_import_rss_feed",
+			  data: { name: "John" }
+			}).done(function( msg ) {
+			  alert( "Data Saved: " + msg );
+			});
+		  });	
+		  
+		  
+			let podcastTabs = Array.from(document.getElementsByClassName('wp-podcast-tab'));
+			
+			podcastTabs.forEach((tab,i)=>{
+			if(!tab.classList.contains('active-tab')){
+			tab.classList.add('tab-deactive')
+			}
+			})
+
+			$(function() {
+				$('.wp_podcasts_305786-settings-accordion li').click(function(){
+				  $(this).toggleClass(' active ');
+				  $(this).siblings().removeClass(' active '); 
+				  $('.submenu').stop().slideUp();
+				  $('.active .submenu').stop().slideDown();
+				  return false;
+				});
+
+
+			  });
+			
+	  });
+
+	
+
 
 })( jQuery );
+

@@ -23,31 +23,64 @@ function wp_podcasts_305786_page_callback() {
 	if(array_key_exists('importRSS', $_POST)) {
 		button1();
 	}
-	function button1() {
-		echo "This is Button1 that is selected";
-	}
-	
-
+	echo '<div class="wp-pod-cast-settings-page-hero">
+			<div class="wp-pod-cast-hero-icon">
+			<span class="dashicons dashicons-microphone"></span>
+			</div>
+			<div class="wp-pod-cast-hero-title">
+			<h1>WP Podcats Settings<h1>
+			<h2>By Christopher Bolivar<h2>
+			</div>
+		  </div>';
 	echo '<div class="wrap">';
-	echo '<h1>WP Podcasts settings page</h1>';
 	echo ' <form action="options.php" method="post">';
 			
 
 	
-	// output security fields
-	settings_fields( 'wp_podcasts_305786_options' );
 	
-	// output setting sections
-	do_settings_sections( 'wp_podcasts_305786' );
 	
+	echo '<ul class="wp_podcasts_305786-settings-accordion">
+	<li>
+	  <p class="link"><a href="#">RSS Feed<i class="fa fa-toggle-down"></i></a></p><ul class="submenu">';
 
-	echo '<a name="importRSS"> Import RSS Feed </a>';
+// output security fields
+settings_fields( 'wp_podcasts_305786_options' );
+	
+// output setting sections
+do_settings_sections( 'wp_podcasts_305786' );
+	
+  	echo '</ul></li>
+	<li>
+	  <p class="link"><a href="#">Accordion02<i class="fa fa-toggle-down"></i></a></p>
+	  <ul class="submenu">
+		<li><a href="#">Sub 2.1</a></li>
+		<li><a href="#">Sub 2.2</a></li>
+	  </ul>
+	</li>
+	<li>
+	  <p class="link"><a href="#">Accordion03<i class="fa fa-toggle-down"></i></a></p>
+	  <ul class="submenu">
+		<li><a href="#">Sub 3.1</a></li>
+		<li><a href="#">Sub 3.2</a></li>
+		<li><a href="#">Sub 3.3</a></li>
+	  </ul>
+	</li>
+  </ul>
+   ';
+
+	echo '<a class="import-rss-btn" name="importRSS"> Import RSS Feed </a>';
 	// submit button
 	submit_button();
 	
 	
 	echo '</form>';
+
+
+	
+
+
 	echo '</div>';
+	
 }
 
 

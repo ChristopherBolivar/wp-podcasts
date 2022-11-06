@@ -16,7 +16,7 @@
  * Plugin Name:       WP Podcasts
  * Plugin URI:        https://christopherbolivar.com
  * Description:       A simple and beautiful way to display your podcasts via RSS feed on your WordPress website. Including custom blocks and shortcodes
- * Version:           1.0.0
+ * Version:           0.0.1
  * Author:            Christopher Bolivar
  * Author URI:        https://christopherbolivar.com
  * License:           GPL-2.0+
@@ -98,6 +98,21 @@ if ( is_admin() ) {
 	require_once plugin_dir_path( __FILE__ ) . 'admin/wp-podcasts-cpt-meta-box.php';
 
 
+
+/**
+ * Enqueue a script in the WordPress admin on edit.php.
+ *
+ * @param int $hook Hook suffix for the current admin page.
+ */
+function wpdocs_selectively_enqueue_admin_script( $hook ) {
+    if ( 'edit.php?post_type=wp-podcasts-305786&page=wp_podcasts_305786' != $hook ) {
+        return;
+    }
+    wp_enqueue_script( 'wp-podcasts-305786-admin', plugin_dir_url( __FILE__ ) . '/admin/js/wp-podcasts-305786-admin.js', array(), '1.0' );
+	wp_register_style( 'wp-podcasts-305786-admin-css', get_template_directory_uri() . '/admin/css/wp-podcasts-305786-admin.css', false, '1.0.0' );
+	wp_enqueue_style( 'wp-podcasts-305786-admin-css' );
+}
+add_action( 'admin_enqueue_scripts', 'wpdocs_selectively_enqueue_admin_script' );
 
 // default plugin options
 function wp_podcasts_305786_options_default() {
