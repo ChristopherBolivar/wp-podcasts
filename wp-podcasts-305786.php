@@ -129,6 +129,37 @@ function wp_podcasts_305786_options_default() {
 
 }
 
+add_filter( 'cron_schedules', 'example_add_cron_interval' );
+function example_add_cron_interval( $schedules ) { 
+    $schedules['five_seconds'] = array(
+        'interval' => 5,
+        'display'  => esc_html__( 'Every Five Seconds' ), );
+    return $schedules;
+}
+
+
+
+ 
+if ( ! wp_next_scheduled( 'wp_ajax_nopriv_wp_podcasts_305786_import_rss_feed' ) ) {
+    wp_schedule_event( time(), 'hourly', 'wp_ajax_nopriv_wp_podcasts_305786_import_rss_feed' );
+}
+
+
+
+
+
+
+/**
+ * Registers the block using the metadata loaded from the `block.json` file.
+ * Behind the scenes, it registers also all assets so they can be enqueued
+ * through the block editor in the corresponding context.
+ *
+ * @see https://developer.wordpress.org/reference/functions/register_block_type/
+ */
+function create_block_wp_podcasts_305786_block_init() {
+	register_block_type( __DIR__ . '/build' );
+}
+add_action( 'init', 'create_block_wp_podcasts_305786_block_init' );
 
 
 
@@ -137,7 +168,23 @@ function wp_podcasts_305786_options_default() {
 
 
 
+function wp_podcasts_305786_register_blocks() {
+    // automatically load dependencies and version
+    $asset_file = include( plugin_dir_path( __FILE__ ) . 'build/index.asset.php');
 
+    wp_register_script(
+        'wp-podcasts-305786-episodes',
+        plugins_url( 'build/block.js', __FILE__ ),
+        $asset_file['dependencies'],
+        $asset_file['version']
+    );
 
+    register_block_type( 'wp-podcasts-305786/episodes', array(
+        'editor_script' => 'wp-podcasts-305786-episodes',
+        'render_callback' => 'wp_podcasts_305786_register_blocks_render_callback'
+    ) );
+
+}
+add_action( 'init', 'wp_podcasts_305786_register_blocks' );
 
 

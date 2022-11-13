@@ -15,7 +15,8 @@ function wp_podcasts_305786_submenu_page() {
   'Podcast Settings',
   'manage_options',
   'wp_podcasts_305786',
-  'wp_podcasts_305786_page_callback' ); 
+  'wp_podcasts_305786_page_callback',
+   0 ); 
 }
 
 

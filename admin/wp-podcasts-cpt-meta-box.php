@@ -11,16 +11,13 @@ if ( ! defined( 'WPINC' ) ) {
  * Retrieving the values:
  * Thumbnail = get_post_meta( get_the_ID(), 'wp_podcasts_305786_thumbnail', true )
  * File URL = get_post_meta( get_the_ID(), 'wp_podcasts_305786_file-url', true )
- * Title = get_post_meta( get_the_ID(), 'wp_podcasts_305786_title', true )
  * Subtitle = get_post_meta( get_the_ID(), 'wp_podcasts_305786_subtitle', true )
  * Description = get_post_meta( get_the_ID(), 'wp_podcasts_305786_description', true )
  * Duration = get_post_meta( get_the_ID(), 'wp_podcasts_305786_duration', true )
- * Keywords = get_post_meta( get_the_ID(), 'wp_podcasts_305786_keywords', true )
+ * Author = get_post_meta( get_the_ID(), 'wp_podcasts_305786_author', true )
  */
-
- 
 class Wp_podcasts_305786_meta_box {
-	private $config = '{"title":"Episode Informatiom","prefix":"wp_podcasts_305786_","domain":"wp_podcasts_305786","class_name":"Wp_podcasts_305786_meta_box","post-type":["post"],"context":"normal","priority":"default","cpt":"wp-podcasts-305786","fields":[{"type":"url","label":"Thumbnail","id":"wp_podcasts_305786_thumbnail"},{"type":"url","label":"File URL","id":"wp_podcasts_305786_file-url"},{"type":"text","label":"Title","id":"wp_podcasts_305786_title"},{"type":"editor","label":"Subtitle","id":"wp_podcasts_305786_subtitle"},{"type":"editor","label":"Description","id":"wp_podcasts_305786_description"},{"type":"text","label":"Duration","id":"wp_podcasts_305786_duration"},{"type":"textarea","label":"Keywords","id":"wp_podcasts_305786_keywords"}]}';
+	private $config = '{"title":"Episode Information","prefix":"wp_podcasts_305786_","domain":"wp_podcasts_305786","class_name":"Wp_podcasts_305786_meta_box","context":"normal","priority":"default","cpt":"wp-podcasts-305786","fields":[{"type":"url","label":"Thumbnail","id":"wp_podcasts_305786_thumbnail"},{"type":"url","label":"File URL","id":"wp_podcasts_305786_file-url"},{"type":"editor","label":"Subtitle","id":"wp_podcasts_305786_subtitle"},{"type":"editor","label":"Description","id":"wp_podcasts_305786_description"},{"type":"text","label":"Duration","id":"wp_podcasts_305786_duration"},{"type":"text","label":"Author","id":"wp_podcasts_305786_author"}]}';
 
 	public function __construct() {
 		$this->config = json_decode( $this->config, true );
@@ -39,7 +36,6 @@ class Wp_podcasts_305786_meta_box {
 			$this->config['post-type'] = array_merge( $this->config['post-type'], $parts );
 		}
 	}
-
 	public function add_meta_boxes() {
 		foreach ( $this->config['post-type'] as $screen ) {
 			add_meta_box(
@@ -112,9 +108,6 @@ class Wp_podcasts_305786_meta_box {
 			case 'editor':
 				$this->editor( $field );
 				break;
-			case 'textarea':
-				$this->textarea( $field );
-				break;
 			default:
 				$this->input( $field );
 		}
@@ -141,15 +134,6 @@ class Wp_podcasts_305786_meta_box {
 		);
 	}
 
-	private function textarea( $field ) {
-		printf(
-			'<textarea class="regular-text" id="%s" name="%s" rows="%d">%s</textarea>',
-			$field['id'], $field['id'],
-			isset( $field['rows'] ) ? $field['rows'] : 5,
-			$this->value( $field )
-		);
-	}
-
 	private function value( $field ) {
 		global $post;
 		if ( metadata_exists( 'post', $post->ID, $field['id'] ) ) {
@@ -164,3 +148,10 @@ class Wp_podcasts_305786_meta_box {
 
 }
 new Wp_podcasts_305786_meta_box;
+
+
+register_rest_field( 'wp-podcasts-305786', 'podcast_data', array(
+    'get_callback' => function ( $data ) {
+        return get_post_meta( $data['id'], '', '' );
+    }, ));
+
