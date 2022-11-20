@@ -11,70 +11,234 @@
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @wordpress/element */ "@wordpress/element");
 /* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @wordpress/api-fetch */ "@wordpress/api-fetch");
-/* harmony import */ var _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @wordpress/i18n */ "@wordpress/i18n");
+/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @wordpress/block-editor */ "@wordpress/block-editor");
+/* harmony import */ var _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @wordpress/components */ "@wordpress/components");
+/* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _wordpress_blocks__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @wordpress/blocks */ "@wordpress/blocks");
+/* harmony import */ var _wordpress_blocks__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_wordpress_blocks__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @wordpress/api-fetch */ "@wordpress/api-fetch");
+/* harmony import */ var _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! react */ "react");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_6__);
 
-const {
-  __
-} = wp.i18n;
-const {
-  registerBlockType
-} = wp.blocks;
 
-registerBlockType("wp-podcasts-305786/episodes", {
-  title: __("Episodes Archive", "wp-podcasts-305786"),
-  icon: 'format-video',
-  category: "wp-podcasts-305786",
+
+
+
+
+
+(0,_wordpress_blocks__WEBPACK_IMPORTED_MODULE_4__.registerBlockType)("wp-podcasts-305786/episodes", {
+  title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Episodes Archive", "wp-podcasts-305786"),
+  icon: "format-video",
+  category: "wp_podcasts_305786_blocks",
   attributes: {
+    allEpisodes: {
+      type: "array"
+    },
     episodes: {
       type: "array"
+    },
+    episodeTags: {
+      type: "array"
+    },
+    sortEpisodes: {
+      type: "string",
+      default: "asc"
+    },
+    sortByCategory: {
+      type: "string",
+      default: "all"
     }
   },
   styles: [{
-    name: 'stacked',
-    label: __('Stacked', "wp-podcasts-305786"),
+    name: "stacked",
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Stacked", "wp-podcasts-305786"),
     isDefault: true
   }, {
-    name: 'split',
-    label: __('Split', "wp-podcasts-305786")
+    name: "split",
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Split", "wp-podcasts-305786")
   }],
   edit: props => {
     // Pulling Set Attributes and Block Attributes from props
     const {
       attributes: {
-        episodes
+        episodes,
+        sortEpisodes,
+        episodeTags,
+        sortByCategory,
+        allEpisodes
       },
       className,
       setAttributes
     } = props;
-    console.log(episodes);
-    _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_1___default()({
-      path: '/wp/v2/wp-podcasts-305786'
-    }).then(posts => {
-      return posts;
-    }).then(res => {
-      setAttributes({
-        episodes: res
+    const camelize = str => {
+      return str.replace(/(?:^\w|[A-Z]|\b\w)/g, (word, i) => {
+        return word.toUpperCase();
+      }).replace(/\s+/g, ' ');
+    };
+    (0,react__WEBPACK_IMPORTED_MODULE_6__.useEffect)(() => {
+      _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_5___default()({
+        path: "/wp/v2/tags?per_page=100"
+      }).then(tags => {
+        return tags;
+      }).then(results => {
+        setAttributes({
+          episodeTags: results
+        });
       });
-    });
+      _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_5___default()({
+        path: "/wp/v2/wp-podcasts-305786"
+      }).then(posts => {
+        return posts;
+      }).then(res => {
+        setAttributes({
+          allEpisodes: res
+        });
+        if (sortByCategory === 'all') {
+          if (sortEpisodes === 'asc') {
+            setAttributes({
+              episodes: res
+            });
+          }
+          if (sortEpisodes === "desc") {
+            setAttributes({
+              episodes: res.reverse()
+            });
+          }
+        } else if (sortByCategory != 'all') {
+          if (sortEpisodes === 'asc') {
+            setAttributes({
+              episodes: res.filter((episode, i) => {
+                if (episode.tags.includes(Number(sortByCategory))) {
+                  return episode;
+                }
+              })
+            });
+          }
+          if (sortEpisodes === "desc") {
+            setAttributes({
+              episodes: res.filter((episode, i) => {
+                if (episode.tags.includes(Number(sortByCategory))) {
+                  return episode;
+                }
+              }).reverse()
+            });
+          }
+        }
+      }).catch(error => {
+        // If the browser doesn't support AbortController then the code below will never log.
+        // However, in most cases this should be fine as it can be considered to be a progressive enhancement.
+        if (error.name === "AbortError") {
+          console.log("Request has been aborted");
+        }
+      });
+    }, []);
+    let onChangeFilterByCatergory = category => {
+      setAttributes({
+        sortByCategory: category
+      });
+      if (category != 'all') {
+        if (sortEpisodes === 'asc') {
+          setAttributes({
+            episodes: [...allEpisodes].filter((episode, i) => {
+              if (episode.tags.includes(Number(category))) {
+                return episode;
+              }
+            })
+          });
+        }
+        if (sortEpisodes === 'desc') {
+          setAttributes({
+            episodes: [...allEpisodes].filter((episode, i) => {
+              if (episode.tags.includes(Number(category))) {
+                return episode;
+              }
+            }).reverse()
+          });
+        }
+      }
+      if (category === 'all') {
+        if (sortEpisodes === 'asc') {
+          setAttributes({
+            episodes: [...allEpisodes]
+          });
+        }
+        if (sortEpisodes === 'desc') {
+          setAttributes({
+            episodes: [...allEpisodes].reverse()
+          });
+        }
+      }
+    };
+    let onChangeSortEpisodes = sortBy => {
+      let episodesCopy = [...episodes];
+      if (sortBy === "asc") {
+        episodesCopy.sort(function (a, b) {
+          // Turn your strings into dates, and then subtract them
+          // to get a value that is either negative, positive, or zero.
+          return new Date(b.date) - new Date(a.date);
+        });
+        setAttributes({
+          episodes: episodesCopy
+        });
+        setAttributes({
+          sortEpisodes: sortBy
+        });
+      }
+      if (sortBy === "desc") {
+        let episodesReverse = episodesCopy.reverse();
+        setAttributes({
+          episodes: episodesReverse
+        });
+        setAttributes({
+          sortEpisodes: sortBy
+        });
+      }
+    };
+    let showEpisodeTags = () => {
+      if (episodeTags) {
+        return episodeTags.map((tag, i) => {
+          if (i === 0) {
+            return {
+              value: "all",
+              label: "All Categories"
+            };
+          } else {
+            return {
+              value: tag.id,
+              label: camelize(tag.name)
+            };
+          }
+        });
+      }
+    };
     let showEpisodes = () => {
-      if (episodes) {
-        return episodes.map((topic, i) => {
-          return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+      if (allEpisodes) {
+        return [...episodes].map((topic, i) => {
+          return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("article", {
             className: `${className} wp-podcasts-305786-episodes-wrapper`
           }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
             className: "wp-podcasts-305786-episode-thumbnail"
           }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("img", {
-            src: topic.podcast_data.wp_podcasts_305786_thumbnail
+            src: topic.fimg_url
           })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
             className: "wp-podcasts-305786-episode-info"
           }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+            className: "wp-podcasts-305786-episode-thumbnail-inner"
+          }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("img", {
+            src: topic.fimg_url
+          })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
             className: "wp-podcasts-305786-episode-info-inner"
           }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("h1", {
             className: "wp-podcasts-305786-episode-title"
-          }, topic.title.rendered), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", {
+          }, topic.title.rendered), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.RichText.Content, {
+            tagName: "p",
+            value: topic.podcast_data.wp_podcasts_305786_subtitle,
             className: "wp-podcasts-305786-episode-subtitle"
-          }, topic.podcast_data.wp_podcasts_305786_subtitle), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", {
+          }), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", {
             className: "wp-podcasts-305786-episode-episode-duration"
           }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", {
             className: "wp-podcasts-305786-episode-episode-duration-span"
@@ -87,9 +251,88 @@ registerBlockType("wp-podcasts-305786/episodes", {
         });
       }
     };
-    return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-      className: ` wp-podcasts-305786-block wp-podcasts-305786-episodes`
-    }, showEpisodes());
+    return [(0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.InspectorControls, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.PanelBody, {
+      title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("General Settings", "wp-podcasts-305786")
+    }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+      className: "components-base-control"
+    }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+      className: "components-base-control__field"
+    }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", {
+      className: "components-base-control__label"
+    }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.SelectControl, {
+      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Sort By:"),
+      value: sortEpisodes,
+      onChange: sortBy => {
+        onChangeSortEpisodes(sortBy);
+      },
+      options: [{
+        label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Sort by", "wp-podcasts-305786"),
+        disabled: true
+      }, {
+        value: "asc",
+        label: "Ascending"
+      }, {
+        value: "desc",
+        label: "Descending"
+      }]
+    })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.SelectControl, {
+      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Filter By:"),
+      value: sortByCategory,
+      onChange: filterBy => {
+        onChangeFilterByCatergory(filterBy);
+      },
+      options: showEpisodeTags()
+    }))))), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.PanelBody, {
+      title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Title Settings", "wp-podcasts-305786")
+    }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+      className: "components-base-control"
+    }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+      className: "components-base-control__field"
+    }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", {
+      className: "components-base-control__label"
+    })))), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.PanelBody, {
+      title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Thumbnail Settings", "wp-podcasts-305786")
+    }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+      className: "components-base-control"
+    }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+      className: "components-base-control__field"
+    }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", {
+      className: "components-base-control__label"
+    }, "yellow")))), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.PanelBody, {
+      title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Author Settings", "wp-podcasts-305786")
+    }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+      className: "components-base-control"
+    }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+      className: "components-base-control__field"
+    }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", {
+      className: "components-base-control__label"
+    }, "yellow")))), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.PanelBody, {
+      title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Share Settings", "wp-podcasts-305786")
+    }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+      className: "components-base-control"
+    }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+      className: "components-base-control__field"
+    }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", {
+      className: "components-base-control__label"
+    }, "yellow")))), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.PanelBody, {
+      title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Share Settings", "wp-podcasts-305786")
+    }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+      className: "components-base-control"
+    }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+      className: "components-base-control__field"
+    }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", {
+      className: "components-base-control__label"
+    }, "yellow")))), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.PanelBody, {
+      title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Button Settings", "wp-podcasts-305786")
+    }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+      className: "components-base-control"
+    }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+      className: "components-base-control__field"
+    }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", {
+      className: "components-base-control__label"
+    }, "yellow"))))), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("section", {
+      className: `wp-podcasts-305786-block wp-podcasts-305786-episodes`
+    }, showEpisodes())];
   },
   save(props) {
     return null;
@@ -278,6 +521,16 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "react":
+/*!************************!*\
+  !*** external "React" ***!
+  \************************/
+/***/ (function(module) {
+
+module.exports = window["React"];
+
+/***/ }),
+
 /***/ "@wordpress/api-fetch":
 /*!**********************************!*\
   !*** external ["wp","apiFetch"] ***!
@@ -305,6 +558,16 @@ module.exports = window["wp"]["blockEditor"];
 /***/ (function(module) {
 
 module.exports = window["wp"]["blocks"];
+
+/***/ }),
+
+/***/ "@wordpress/components":
+/*!************************************!*\
+  !*** external ["wp","components"] ***!
+  \************************************/
+/***/ (function(module) {
+
+module.exports = window["wp"]["components"];
 
 /***/ }),
 

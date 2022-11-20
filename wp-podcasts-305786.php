@@ -81,6 +81,22 @@ function run_wp_podcasts_305786() {
 }
 run_wp_podcasts_305786();
 
+add_action('rest_api_init', 'register_rest_images' );function register_rest_images(){
+    register_rest_field( array('wp-podcasts-305786'),
+        'fimg_url',
+        array(
+            'get_callback'    => 'get_rest_featured_image',
+            'update_callback' => null,
+            'schema'          => null,
+        )
+    );
+}function get_rest_featured_image( $object, $field_name, $request ) {
+    if( $object['featured_media'] ){
+        $img = wp_get_attachment_image_src( $object['featured_media'], 'large' );
+        return $img[0];
+    }
+    return false;
+}
 
 // if admin area
 if ( is_admin() ) {
@@ -163,12 +179,37 @@ add_action( 'init', 'create_block_wp_podcasts_305786_block_init' );
 
 
 
+/** 
+ * Add custom "wp_podcasts_305786" block category
+ * 
+ * @link https://wordpress.org/gutenberg/handbook/designers-developers/developers/filters/block-filters/#managing-block-categories
+ */
+add_filter( 'block_categories', 'wp_podcasts_305786_block_categories', 10, 2 );
+
+function wp_podcasts_305786_block_categories( $categories, $post ) {
+
+	return array_merge(
+		$categories,
+		array(
+			array(
+				'slug' => 'wp_podcasts_305786_blocks',
+				'title' => __( 'WP Podcasts', 'wp_podcasts_305786' ),
+				'icon'  => 'mic',
+			),
+		)
+	);
+}
 
 
 
 
 
 function wp_podcasts_305786_register_blocks() {
+	// If Block Editor is not active, bail.
+	if ( ! function_exists( 'register_block_type' ) ) {
+		return;
+	}
+
     // automatically load dependencies and version
     $asset_file = include( plugin_dir_path( __FILE__ ) . 'build/index.asset.php');
 

@@ -14,7 +14,10 @@
 .wp-podcasts-305786-episodes-wrapper .wp-podcasts-305786-episode-info .wp-podcasts-305786-episode-info-inner  .wp-podcasts-305786-episode-title{
 	font-size: 110%;
 }
-.wp-podcasts-305786-episodes-wrapper .wp-podcasts-305786-episode-info .wp-podcasts-305786-episode-info-inner  .wp-podcasts-305786-episode-subtitle{
+.wp-podcasts-305786-episodes-wrapper .wp-podcasts-305786-episode-info .wp-podcasts-305786-episode-info-inner  p{
+	font-size: 80%;
+}
+.wp-podcasts-305786-episodes-wrapper .wp-podcasts-305786-episode-info .wp-podcasts-305786-episode-info-inner button {
 	font-size: 80%;
 }
 
@@ -28,13 +31,31 @@
 	flex-direction: column;
 	
 }
+.wp-podcasts-305786-episodes-wrapper .wp-podcasts-305786-episode-thumbnail, .wp-podcasts-305786-episodes-wrapper.is-style-stacked .wp-podcasts-305786-episode-thumbnail  {
+	display: block;
+}
+
+
+.wp-podcasts-305786-episodes-wrapper .wp-podcasts-305786-episode-info .wp-podcasts-305786-episode-thumbnail-inner,.wp-podcasts-305786-episodes-wrapper.is-style-stacked .wp-podcasts-305786-episode-info .wp-podcasts-305786-episode-thumbnail-inner {
+	display: none;
+}
+
+.wp-podcasts-305786-episodes-wrapper.is-style-split .wp-podcasts-305786-episode-thumbnail  {
+	display: flex;
+}
+
+
+.wp-podcasts-305786-episodes-wrapper.is-style-split .wp-podcasts-305786-episode-info .wp-podcasts-305786-episode-thumbnail-inner {
+	display: none;
+}
+
+
 .wp-podcasts-305786-episodes-wrapper.is-style-split{
 	flex-direction: row;
 }
 
 .wp-podcasts-305786-episodes-wrapper.is-style-split .wp-podcasts-305786-episode-thumbnail {
-	width: 50%;
-	display: flex;
+	width: 40%;
 }
 .wp-podcasts-305786-episodes-wrapper.is-style-split .wp-podcasts-305786-episode-thumbnail img {
 	width: 100%;
@@ -43,5 +64,5 @@
 }
 .wp-podcasts-305786-episodes-wrapper.is-style-split .wp-podcasts-305786-episode-info {
 	margin-left: 2rem;
-	width: 50%;
+	width: 60%;
 }
