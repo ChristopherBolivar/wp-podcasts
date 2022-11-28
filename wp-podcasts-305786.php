@@ -81,16 +81,19 @@ function run_wp_podcasts_305786() {
 }
 run_wp_podcasts_305786();
 
-add_action('rest_api_init', 'register_rest_images' );function register_rest_images(){
+add_action('rest_api_init', 'wp_podcasts_305786_register_rest_images' );
+function wp_podcasts_305786_register_rest_images(){
     register_rest_field( array('wp-podcasts-305786'),
         'fimg_url',
         array(
-            'get_callback'    => 'get_rest_featured_image',
+            'get_callback'    => 'get_rest_featured_image_wp_podcasts_305786',
             'update_callback' => null,
             'schema'          => null,
         )
     );
-}function get_rest_featured_image( $object, $field_name, $request ) {
+}
+
+function get_rest_featured_image_wp_podcasts_305786( $object, $field_name, $request ) {
     if( $object['featured_media'] ){
         $img = wp_get_attachment_image_src( $object['featured_media'], 'large' );
         return $img[0];
@@ -120,7 +123,7 @@ if ( is_admin() ) {
  *
  * @param int $hook Hook suffix for the current admin page.
  */
-function wpdocs_selectively_enqueue_admin_script( $hook ) {
+function wp_podcasts_305786_wpdocs_selectively_enqueue_admin_script( $hook ) {
     if ( 'edit.php?post_type=wp-podcasts-305786&page=wp_podcasts_305786' != $hook ) {
         return;
     }
@@ -128,7 +131,7 @@ function wpdocs_selectively_enqueue_admin_script( $hook ) {
 	wp_register_style( 'wp-podcasts-305786-admin-css', get_template_directory_uri() . '/admin/css/wp-podcasts-305786-admin.css', false, '1.0.0' );
 	wp_enqueue_style( 'wp-podcasts-305786-admin-css' );
 }
-add_action( 'admin_enqueue_scripts', 'wpdocs_selectively_enqueue_admin_script' );
+add_action( 'admin_enqueue_scripts', 'wp_podcasts_305786_wpdocs_selectively_enqueue_admin_script' );
 
 // default plugin options
 function wp_podcasts_305786_options_default() {
