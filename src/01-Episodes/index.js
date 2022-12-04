@@ -7,6 +7,8 @@ import {
   __experimentalRadioGroup as RadioGroup,
   ToggleControl,
   RangeControl,
+  Dashicon,
+  __experimentalNumberControl as NumberControl,
 } from "@wordpress/components";
 import { registerBlockType } from "@wordpress/blocks";
 import apiFetch from "@wordpress/api-fetch";
@@ -17,7 +19,15 @@ registerBlockType("wp-podcasts-305786/episodes", {
   icon: "format-video",
   category: "wp_podcasts_305786_blocks",
   attributes: {
+    alreadyLoaded: {
+      type: "boolean",
+      default: false,
+    },
     allEpisodes: {
+      type: "array",
+      default: [],
+    },
+    allFilteredEpisodes: {
       type: "array",
       default: [],
     },
@@ -49,6 +59,18 @@ registerBlockType("wp-podcasts-305786/episodes", {
       type: "number",
       default: 1,
     },
+    amountOfEpisodesFiltered: {
+      type: "number",
+      default: 1,
+    },
+    spliceSubTitle: {
+      type: "boolean",
+      default: false,
+    },
+    subTitleCharacterAmount: {
+      type: "number",
+      default: 500,
+    },
   },
 
   styles: [
@@ -67,6 +89,7 @@ registerBlockType("wp-podcasts-305786/episodes", {
     // Pulling Set Attributes and Block Attributes from props
     const {
       attributes: {
+        alreadyLoaded,
         episodes,
         sortEpisodes,
         episodeTags,
@@ -75,6 +98,10 @@ registerBlockType("wp-podcasts-305786/episodes", {
         hasTitle,
         hasSubTitle,
         amountOfEpisodes,
+        amountOfEpisodesFiltered,
+        allFilteredEpisodes,
+        spliceSubTitle,
+        subTitleCharacterAmount,
       },
       className,
       setAttributes,
@@ -97,14 +124,17 @@ registerBlockType("wp-podcasts-305786/episodes", {
           setAttributes({ episodeTags: results });
         });
 
-      apiFetch({ path: "/wp/v2/wp-podcasts-305786" })
+      apiFetch({ path: "/wp/v2/wp-podcasts-305786?per_page=25" })
         .then((posts) => {
           return posts;
         })
         .then((res) => {
           setAttributes({ allEpisodes: res });
-          setAttributes({ episodes: res });
-          setAttributes({ amountOfEpisodes: res.length });
+          if (!alreadyLoaded) {
+            setAttributes({ amountOfEpisodes: res.length });
+            setAttributes({ episodes: res });
+            setAttributes({ alreadyLoaded: true });
+          }
         })
 
         .catch((error) => {
@@ -117,28 +147,26 @@ registerBlockType("wp-podcasts-305786/episodes", {
     }, []);
 
     let onChangeFilterByCatergory = (category) => {
-      let episodesCopy = [];
-
+      let allEpisodesCopy = [...allEpisodes];
       setAttributes({ sortByCategory: category });
-      
+
       if (category != "all") {
-        episodesCopy = [...allEpisodes].filter((episode, i) => {
-          if (episode.tags.includes(Number(category))) {
-            return episode;
-          }
-        })
+        apiFetch({
+          path: `/wp/v2/wp-podcasts-305786?per_page=100&tags=${Number(
+            category
+          )}`,
+        }).then((posts) => {
+          setAttributes({ episodes: posts });
+          setAttributes({ allFilteredEpisodes: posts });
+          setAttributes({ amountOfEpisodes: posts.length });
+          setAttributes({ amountOfEpisodesFiltered: posts.length });
+        });
+      } else {
+        console.log("hey", allEpisodesCopy.length);
+        setAttributes({ episodes: allEpisodesCopy });
+        setAttributes({ amountOfEpisodes: allEpisodesCopy.length });
+        setAttributes({ amountOfEpisodesFiltered: allEpisodesCopy.length });
       }
-
-      if (category === "all") {
-        episodesCopy = [...allEpisodes]
-        // console.log(episodes.length, "here");
-        // setAttributes({ episodes: [...allEpisodes] });
-        // setAttributes({ amountOfEpisodes:  [...allEpisodes].length });
-      }
-
-        setAttributes({ episodes: episodesCopy });
-        setAttributes({ amountOfEpisodes:  episodesCopy.length });
-
     };
 
     let onChangeSortEpisodes = (sortBy) => {
@@ -148,93 +176,75 @@ registerBlockType("wp-podcasts-305786/episodes", {
         episodesCopy.sort((a, b) => {
           return new Date(b.date) - new Date(a.date);
         });
-
       }
 
       if (sortBy === "desc") {
-        episodesCopy = [...allEpisodes].reverse()
+        episodesCopy = [...allEpisodes].reverse();
       }
       setAttributes({ episodes: episodesCopy });
       setAttributes({ sortEpisodes: sortBy });
-      setAttributes({ amountOfEpisodes: episodesCopy.length });
-
     };
 
-
-
     let onChangeAmountOfEpisodes = (amount) => {
-
-
       let episodesCopy = [...episodes];
       let allEpisodesCopy = [...allEpisodes];
+      let allFilteredEpisodesCopy = [...allFilteredEpisodes];
 
-    
-      setAttributes({ amountOfEpisodes: amount });
-    
-
-      if (sortEpisodes != "asc") {
-        episodesCopy = episodesCopy.reverse();
-      }
-       
-      if (sortByCategory != "all") {
-
+      if (amount === allEpisodesCopy.length) {
+        episodesCopy = allEpisodesCopy;
+      } else if (sortByCategory === "all") {
         episodesCopy = allEpisodesCopy.filter((episode, i) => {
-          if (episode.tags.includes(Number(sortByCategory))) {
+          if (i + 1 <= amount) {
             return episode;
           }
         });
-
-        console.log(episodesCopy, 'step1')
-        episodesCopy = allEpisodesCopy.filter((episode,i)=>{
-          i + 1
-          if(i <= amount){
-            return episode
+      } else {
+        episodesCopy = allFilteredEpisodesCopy.filter((episode, i) => {
+          if (i + 1 <= amount) {
+            return episode;
           }
-        })
-        console.log(episodesCopy, 'step2')
-   
+        });
       }
+      console.log(amount, amountOfEpisodes, amountOfEpisodesFiltered);
+      setAttributes({ episodes: episodesCopy });
 
-
-
-
-      if (amount === allEpisodesCopy.length) {
-
-        setAttributes({ episodes: allEpisodesCopy });
-
-      }else {
-        episodesCopy = allEpisodesCopy.filter((episode,i)=>{
-          if(i + 1 <= amount){
-            return episode
-          }
-        })
-
-        setAttributes({ amountOfEpisodes: episodesCopy.length });
-        setAttributes({ episodes:  episodesCopy});
-
+      if (amount <= allEpisodesCopy.length && sortByCategory === "all") {
+        setAttributes({ amountOfEpisodes: amount });
+      } else if (amount <= allFilteredEpisodes.length) {
+        setAttributes({ amountOfEpisodesFiltered: amount });
+        setAttributes({ amountOfEpisodes: amount });
       }
-      
-      setAttributes({ amountOfEpisodes: episodesCopy.length });
-     
     };
 
     let onChangeToggleTitle = (event) => {
       setAttributes({ hasTitle: event });
     };
+    let onChangeSpliceSubTitle = (event) => {
+      setAttributes({ spliceSubTitle: event });
+    };
+   let onChangeSpliceSubTitleAmount = (amount)=>{
+     setAttributes({subTitleCharacterAmount: amount})
+   }
 
     let onChangeToggleSubTitle = (event) => {
       setAttributes({ hasSubTitle: event });
     };
 
     let showSubTitle = (subTitle) => {
-      if (hasSubTitle) {
+      if (hasSubTitle && spliceSubTitle) {
         return (
           <RichText.Content
             tagName='p'
-            value={subTitle}
+            value={subTitle[0].slice(0,subTitleCharacterAmount) + '&nbsp;[..]'}
             className='wp-podcasts-305786-episode-subtitle'
           />
         );
+      } else if (hasSubTitle) {
+        return <RichText.Content
+          tagName='p'
+          value={subTitle}
+          className='wp-podcasts-305786-episode-subtitle'
+        />;
       }
     };
 
@@ -264,36 +274,42 @@ registerBlockType("wp-podcasts-305786/episodes", {
       }
     };
 
+    let showSubTitleSplice = () => {
+      if (spliceSubTitle) {
+        return <NumberControl shiftStep={subTitleCharacterAmount} step={1} value={subTitleCharacterAmount} onChange={(amount) => {
+          onChangeSpliceSubTitleAmount(amount);
+        }} />;
+      }
+    };
+
     let showEpisodes = () => {
       let episodesCopy = [...episodes];
       let allEpisodesCopy = [...allEpisodes];
+      let allFilteredEpisodesCopy = [...allFilteredEpisodes];
 
-  
-
-      if (sortByCategory != "all" && episodesCopy.length != 1) {
-        episodesCopy =  allEpisodesCopy.filter((episode, i) => {
-          if (episode.tags.includes(Number(sortByCategory))) {
+      if (
+        episodesCopy.length === allEpisodesCopy.length &&
+        sortByCategory === "all"
+      ) {
+        episodesCopy = allEpisodesCopy;
+      } else if (sortByCategory === "all") {
+        episodesCopy = episodesCopy.filter((episode, i) => {
+          if (i + 1 <= amountOfEpisodes) {
             return episode;
           }
         });
-
-        console.log(episodesCopy, sortByCategory, 'here?')
-      }
-
-      if (sortEpisodes === "asc") {
-        episodesCopy = episodesCopy.sort(function (a, b){
-          return new Date(b.date) + new Date(a.date);
+      } else {
+        episodesCopy = allFilteredEpisodesCopy.filter((episode, i) => {
+          if (i + 1 <= amountOfEpisodesFiltered) {
+            return episode;
+          }
         });
-        console.log('ascc', episodesCopy)
-      }else {
-       
-        episodesCopy = episodesCopy.reverse()
       }
 
-      setAttributes({ amountOfEpisodes: episodesCopy.length });
+      if (sortEpisodes != "asc") {
+        episodesCopy = episodesCopy.reverse();
+      }
 
-      console.log(episodesCopy, sortEpisodes, 'fin')
-     
       return episodesCopy.map((topic, i) => {
         return (
           <article
@@ -308,14 +324,22 @@ registerBlockType("wp-podcasts-305786/episodes", {
               </div>
               <div className='wp-podcasts-305786-episode-info-inner'>
                 {showEpisodeTitle(topic.title.rendered)}
-                {showSubTitle(topic.podcast_data.wp_podcasts_305786_subtitle)}
-
-                <p className='wp-podcasts-305786-episode-episode-duration'>
-                  <span className='wp-podcasts-305786-episode-episode-duration-span'>
-                    Duration:
-                  </span>{" "}
-                  {topic.podcast_data.wp_podcasts_305786_duration}
+                <p>
+                  <Dashicon icon='admin-users' />
+                  {topic.podcast_data.wp_podcasts_305786_author}
                 </p>
+                <p className='wp-podcasts-305786-episode-episode-details'>
+                  <span>
+                    <Dashicon icon='calendar-alt' /> Published:&nbsp;
+                    {new Date(topic.date).toDateString()}&nbsp;
+                  </span>
+                  <span className='wp-podcasts-305786-episode-episode-duration-span'>
+                    <Dashicon icon='clock' />
+                    Duration:&nbsp;
+                    {topic.podcast_data.wp_podcasts_305786_duration}
+                  </span>
+                </p>
+                {showSubTitle(topic.podcast_data.wp_podcasts_305786_subtitle)}
                 <a href='' className='wp-podcasts-305786-episode-info-btn'>
                   <button className='wp-block-button wp-element-button'>
                     More info
@@ -378,7 +402,8 @@ registerBlockType("wp-podcasts-305786/episodes", {
               </label>
               <label>
                 <RangeControl
-                  label='Columns'
+                  label={__("Number of Episodes")}
+                  help={__("Filter by number if episodes you like to display")}
                   value={amountOfEpisodes}
                   min={1}
                   max={allEpisodes.length}
@@ -395,10 +420,22 @@ registerBlockType("wp-podcasts-305786/episodes", {
             </div>
           </div>
         </PanelBody>
-        <PanelBody title={__("Thumbnail Settings", "wp-podcasts-305786")}>
+        <PanelBody title={__("Subtitle Settings", "wp-podcasts-305786")}>
           <div className='components-base-control'>
             <div className='components-base-control__field'>
-              <label className='components-base-control__label'>yellow</label>
+              <label className='components-base-control__label'>
+                <ToggleControl
+                  label={__("Limit Subtitle Character Count")}
+                  help={
+                    spliceSubTitle
+                      ? __("Don't Splice Subtitle")
+                      : __("Splice Subtitle")
+                  }
+                  checked={spliceSubTitle}
+                  onChange={(e) => onChangeSpliceSubTitle(e)}
+                />
+                {showSubTitleSplice()}
+              </label>
             </div>
           </div>
         </PanelBody>
