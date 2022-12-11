@@ -35,19 +35,7 @@ __webpack_require__.r(__webpack_exports__);
   icon: "format-video",
   category: "wp_podcasts_305786_blocks",
   attributes: {
-    // allEpisodes: {
-    //   type: "array",
-    //   default: [],
-    // },
     allFilteredEpisodes: {
-      type: "array",
-      default: []
-    },
-    // episodes: {
-    //   type: "array",
-    //   default: [],
-    // },
-    episodeTags: {
       type: "array",
       default: []
     },
@@ -97,7 +85,6 @@ __webpack_require__.r(__webpack_exports__);
     const {
       attributes: {
         sortEpisodes,
-        episodeTags,
         sortByCategory,
         hasTitle,
         hasSubTitle,
@@ -115,11 +102,24 @@ __webpack_require__.r(__webpack_exports__);
     };
     const [episodes, setEpisodes] = (0,react__WEBPACK_IMPORTED_MODULE_6__.useState)([]);
     const [allEpisodes, setAllEpisodes] = (0,react__WEBPACK_IMPORTED_MODULE_6__.useState)([]);
+    const [episodeTags, setEpisodeTags] = (0,react__WEBPACK_IMPORTED_MODULE_6__.useState)([]);
     (0,react__WEBPACK_IMPORTED_MODULE_6__.useEffect)(() => {
-      let filteredEpisodes = [...allEpisodes].filter((episode, i) => i + 1 <= amountOfEpisodes ? episode : null);
-      setEpisodes(filteredEpisodes);
-    }, [amountOfEpisodes]);
+      _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_5___default()({
+        path: "/wp/v2/tags?per_page=100"
+      }).then(tags => {
+        return tags;
+      }).then(res => {
+        setEpisodeTags(res);
+      }).catch(error => {
+        if (error.name === "AbortError") {
+          console.log("Request has been aborted");
+        }
+      });
+    }, []);
+
+    //When attributes sorty by category and amount of episodes are changes update episodes
     (0,react__WEBPACK_IMPORTED_MODULE_6__.useEffect)(() => {
+      console.log(sortByCategory);
       let useFetch = sortByCategory != "all" ? _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_5___default()({
         path: `/wp/v2/wp-podcasts-305786?per_page=100&tags=${Number(sortByCategory)}`
       }) : _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_5___default()({
@@ -128,15 +128,17 @@ __webpack_require__.r(__webpack_exports__);
       useFetch.then(posts => {
         return posts;
       }).then(res => {
-        setEpisodes(res);
+        let filteredEpisodes = [...res].filter((episode, i) => i + 1 <= amountOfEpisodes ? episode : null);
+        setEpisodes(filteredEpisodes);
         setAllEpisodes(res);
       }).catch(error => {
         if (error.name === "AbortError") {
           console.log("Request has been aborted");
         }
       });
-    }, [sortByCategory]);
+    }, [sortByCategory, amountOfEpisodes]);
     let onChangeFilterByCatergory = category => {
+      console.log(category, 'cat');
       setAttributes({
         sortByCategory: category
       });
@@ -217,7 +219,7 @@ __webpack_require__.r(__webpack_exports__);
     let showEpisodes = () => {
       if (episodes.length <= 0) return;
       let episodesCopy = [...episodes];
-      return episodesCopy.map((topic, i) => {
+      let displayEpisodes = episodesCopy.map((topic, i) => {
         return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("article", {
           className: `${className} wp-podcasts-305786-episodes-wrapper`
         }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
@@ -249,6 +251,7 @@ __webpack_require__.r(__webpack_exports__);
           className: "wp-block-button wp-element-button"
         }, "More info")))));
       });
+      return displayEpisodes;
     };
     return [(0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.InspectorControls, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.PanelBody, {
       title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("General Settings", "wp-podcasts-305786")
@@ -278,6 +281,7 @@ __webpack_require__.r(__webpack_exports__);
       label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Filter By:"),
       value: sortByCategory,
       onChange: filterBy => {
+        console.log(filterBy);
         onChangeFilterByCatergory(filterBy);
       },
       options: showEpisodeTags()

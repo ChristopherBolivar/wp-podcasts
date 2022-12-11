@@ -19,19 +19,7 @@ registerBlockType("wp-podcasts-305786/episodes", {
   icon: "format-video",
   category: "wp_podcasts_305786_blocks",
   attributes: {
-    // allEpisodes: {
-    //   type: "array",
-    //   default: [],
-    // },
     allFilteredEpisodes: {
-      type: "array",
-      default: [],
-    },
-    // episodes: {
-    //   type: "array",
-    //   default: [],
-    // },
-    episodeTags: {
       type: "array",
       default: [],
     },
@@ -86,7 +74,6 @@ registerBlockType("wp-podcasts-305786/episodes", {
     const {
       attributes: {
         sortEpisodes,
-        episodeTags,
         sortByCategory,
         hasTitle,
         hasSubTitle,
@@ -109,16 +96,29 @@ registerBlockType("wp-podcasts-305786/episodes", {
 
     const [episodes, setEpisodes] = useState([])
     const [allEpisodes, setAllEpisodes] = useState([])
+    const [episodeTags, setEpisodeTags] = useState([])
 
     useEffect(() => {
-      let filteredEpisodes = [...allEpisodes].filter((episode, i) =>
-        i + 1 <= amountOfEpisodes ? episode : null
-      );
-      setEpisodes(filteredEpisodes);
-    }, [amountOfEpisodes]);
+      apiFetch({ path: "/wp/v2/tags?per_page=100" })
+        .then((tags) => {
+          return tags;
+        })
+        .then((res) => {
+         
+          setEpisodeTags( res )
+
+        })
+        .catch((error) => {
+          if (error.name === "AbortError") {
+            console.log("Request has been aborted");
+          }
+        });
+    }, []);
 
 
+   //When attributes sorty by category and amount of episodes are changes update episodes
     useEffect(() => {
+      console.log(sortByCategory)
       let useFetch =
         sortByCategory != "all"
           ? apiFetch({
@@ -133,7 +133,10 @@ registerBlockType("wp-podcasts-305786/episodes", {
           return posts;
         })
         .then((res) => {
-          setEpisodes( res )
+          let filteredEpisodes = [...res].filter((episode, i) =>
+          i + 1 <= amountOfEpisodes ? episode : null
+        );
+          setEpisodes( filteredEpisodes )
           setAllEpisodes(res)
         })
         .catch((error) => {
@@ -141,10 +144,12 @@ registerBlockType("wp-podcasts-305786/episodes", {
             console.log("Request has been aborted");
           }
         });
-    }, [sortByCategory]);
+    }, [sortByCategory, amountOfEpisodes]);
+
 
    
     let onChangeFilterByCatergory = (category) => {
+      console.log(category, 'cat')
       setAttributes({ sortByCategory: category });
     };
 
@@ -222,8 +227,8 @@ registerBlockType("wp-podcasts-305786/episodes", {
     let showEpisodes = () => {
      if(episodes.length <= 0) return;
       let episodesCopy = [...episodes];
-
-      return episodesCopy.map((topic, i) => {
+     
+      let displayEpisodes = episodesCopy.map((topic, i) => {
         return (
           <article
             className={`${className} wp-podcasts-305786-episodes-wrapper`}
@@ -263,6 +268,8 @@ registerBlockType("wp-podcasts-305786/episodes", {
           </article>
         );
       });
+      
+      return displayEpisodes;
     };
 
     return [
@@ -291,7 +298,7 @@ registerBlockType("wp-podcasts-305786/episodes", {
                 <SelectControl
                   label={__("Filter By:")}
                   value={sortByCategory}
-                  onChange={(filterBy) => {
+                  onChange={(filterBy) => {console.log(filterBy)
                     onChangeFilterByCatergory(filterBy);
                   }}
                   options={showEpisodeTags()}
