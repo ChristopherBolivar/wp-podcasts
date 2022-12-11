@@ -232,3 +232,71 @@ function wp_podcasts_305786_register_blocks() {
 add_action( 'init', 'wp_podcasts_305786_register_blocks' );
 
 
+/**
+ * Render the saved output from the dynamic block.
+ * 
+ * $attributes - array - Block attributes.
+ * $content - Block inner content.
+ */
+function wp_podcasts_305786_register_blocks_render_callback( $attributes, $content ) {
+
+	
+	$orderBy =   array_key_exists("sortEpisodes", $attributes)  ? 'ASC'  : 'DSC' ;
+	$sortBy = array_key_exists("sortByCategory", $attributes)  ? intval($attributes['sortByCategory']) :  '' ;
+	$numberOfEpisodes = array_key_exists("amountOfEpisodes", $attributes) ? intval($attributes['amountOfEpisodes']) : 1  ;
+	$episodeDuration = array_key_exists("className", $attributes) ? $attributes['className'] : '' ;
+	$blockClassName = array_key_exists("className", $attributes) ? $attributes['className'] : '' ;
+	
+
+	// WP_Query arguments
+	$args = array(
+	  'post_type'              => array( 'wp-podcasts-305786' ),
+	  'post_status'            => array( 'publish' ),
+	  'posts_per_page'		   => $numberOfEpisodes,
+	  'tag_id'				   => $sortBy,
+	  'order'                  => $orderBy,
+	  'orderby'                => 'publish_date',
+  );
+
+ 
+
+  // The Query
+  $query = new WP_Query( $args );
+  $episodeString = '';
+
+  // The Loop
+  if ( $query->have_posts() ) {
+	  while ( $query->have_posts() ) {
+		  $query->the_post();
+
+		  $episodeString .= 
+		'<article class="'.$blockClassName.' wp-podcasts-305786-episodes-wrapper">
+		  <div className="wp-podcasts-305786-episode-thumbnail"></div>
+		  <div className="wp-podcasts-305786-episode-info">
+			<div className="wp-podcasts-305786-episode-thumbnail-inner"></div>
+			<div className="wp-podcasts-305786-episode-info-inner">
+			  <h1 class="wp-podcasts-305786-episode-title">'.esc_html(get_the_title()). '</h1>
+			  <p>
+				<span class="dashicons dashicons-admin-users"></span>'. esc_html(
+				get_post_meta(get_the_id(), 'wp_podcasts_305786_author', true)) .'
+				&nbsp; <span class="dashicons dashicons-calendar-alt"></span>'.
+				get_the_date( 'l F j, Y' ) .'&nbsp; <span class="dashicons dashicons-clock"></span> '.
+				esc_html( get_post_meta(get_the_id(), 'wp_podcasts_305786_duration',
+				true)) .'
+			  </p>
+			</div>
+		  </div>
+		</article>';
+	  
+		  
+	  }
+  } else {
+	  // no posts found
+  }
+
+  return $episodeString;
+
+  // Restore original Post Data
+  wp_reset_postdata();
+
+}

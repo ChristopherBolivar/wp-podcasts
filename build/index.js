@@ -35,22 +35,18 @@ __webpack_require__.r(__webpack_exports__);
   icon: "format-video",
   category: "wp_podcasts_305786_blocks",
   attributes: {
-    alreadyLoaded: {
-      type: "boolean",
-      default: false
-    },
-    allEpisodes: {
-      type: "array",
-      default: []
-    },
+    // allEpisodes: {
+    //   type: "array",
+    //   default: [],
+    // },
     allFilteredEpisodes: {
       type: "array",
       default: []
     },
-    episodes: {
-      type: "array",
-      default: []
-    },
+    // episodes: {
+    //   type: "array",
+    //   default: [],
+    // },
     episodeTags: {
       type: "array",
       default: []
@@ -100,17 +96,12 @@ __webpack_require__.r(__webpack_exports__);
     // Pulling Set Attributes and Block Attributes from props
     const {
       attributes: {
-        alreadyLoaded,
-        episodes,
         sortEpisodes,
         episodeTags,
         sortByCategory,
-        allEpisodes,
         hasTitle,
         hasSubTitle,
         amountOfEpisodes,
-        amountOfEpisodesFiltered,
-        allFilteredEpisodes,
         spliceSubTitle,
         subTitleCharacterAmount
       },
@@ -122,130 +113,44 @@ __webpack_require__.r(__webpack_exports__);
         return word.toUpperCase();
       }).replace(/\s+/g, " ");
     };
+    const [episodes, setEpisodes] = (0,react__WEBPACK_IMPORTED_MODULE_6__.useState)([]);
+    const [allEpisodes, setAllEpisodes] = (0,react__WEBPACK_IMPORTED_MODULE_6__.useState)([]);
     (0,react__WEBPACK_IMPORTED_MODULE_6__.useEffect)(() => {
-      _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_5___default()({
-        path: "/wp/v2/tags?per_page=100"
-      }).then(tags => {
-        return tags;
-      }).then(results => {
-        setAttributes({
-          episodeTags: results
-        });
-      });
-      _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_5___default()({
+      let filteredEpisodes = [...allEpisodes].filter((episode, i) => i + 1 <= amountOfEpisodes ? episode : null);
+      setEpisodes(filteredEpisodes);
+    }, [amountOfEpisodes]);
+    (0,react__WEBPACK_IMPORTED_MODULE_6__.useEffect)(() => {
+      let useFetch = sortByCategory != "all" ? _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_5___default()({
+        path: `/wp/v2/wp-podcasts-305786?per_page=100&tags=${Number(sortByCategory)}`
+      }) : _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_5___default()({
         path: "/wp/v2/wp-podcasts-305786?per_page=25"
-      }).then(posts => {
+      });
+      useFetch.then(posts => {
         return posts;
       }).then(res => {
-        setAttributes({
-          allEpisodes: res
-        });
-        if (!alreadyLoaded) {
-          setAttributes({
-            amountOfEpisodes: res.length
-          });
-          setAttributes({
-            episodes: res
-          });
-          setAttributes({
-            alreadyLoaded: true
-          });
-        }
+        setEpisodes(res);
+        setAllEpisodes(res);
       }).catch(error => {
-        // If the browser doesn't support AbortController then the code below will never log.
-        // However, in most cases this should be fine as it can be considered to be a progressive enhancement.
         if (error.name === "AbortError") {
           console.log("Request has been aborted");
         }
       });
-    }, []);
+    }, [sortByCategory]);
     let onChangeFilterByCatergory = category => {
-      let allEpisodesCopy = [...allEpisodes];
       setAttributes({
         sortByCategory: category
       });
-      if (category != "all") {
-        _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_5___default()({
-          path: `/wp/v2/wp-podcasts-305786?per_page=100&tags=${Number(category)}`
-        }).then(posts => {
-          setAttributes({
-            episodes: posts
-          });
-          setAttributes({
-            allFilteredEpisodes: posts
-          });
-          setAttributes({
-            amountOfEpisodes: posts.length
-          });
-          setAttributes({
-            amountOfEpisodesFiltered: posts.length
-          });
-        });
-      } else {
-        console.log("hey", allEpisodesCopy.length);
-        setAttributes({
-          episodes: allEpisodesCopy
-        });
-        setAttributes({
-          amountOfEpisodes: allEpisodesCopy.length
-        });
-        setAttributes({
-          amountOfEpisodesFiltered: allEpisodesCopy.length
-        });
-      }
     };
     let onChangeSortEpisodes = sortBy => {
-      let episodesCopy = [...episodes];
-      if (sortBy === "asc") {
-        episodesCopy.sort((a, b) => {
-          return new Date(b.date) - new Date(a.date);
-        });
-      }
-      if (sortBy === "desc") {
-        episodesCopy = [...allEpisodes].reverse();
-      }
-      setAttributes({
-        episodes: episodesCopy
-      });
       setAttributes({
         sortEpisodes: sortBy
       });
     };
     let onChangeAmountOfEpisodes = amount => {
-      let episodesCopy = [...episodes];
-      let allEpisodesCopy = [...allEpisodes];
-      let allFilteredEpisodesCopy = [...allFilteredEpisodes];
-      if (amount === allEpisodesCopy.length) {
-        episodesCopy = allEpisodesCopy;
-      } else if (sortByCategory === "all") {
-        episodesCopy = allEpisodesCopy.filter((episode, i) => {
-          if (i + 1 <= amount) {
-            return episode;
-          }
-        });
-      } else {
-        episodesCopy = allFilteredEpisodesCopy.filter((episode, i) => {
-          if (i + 1 <= amount) {
-            return episode;
-          }
-        });
-      }
-      console.log(amount, amountOfEpisodes, amountOfEpisodesFiltered);
+      if (amount > allEpisodes.length) return;
       setAttributes({
-        episodes: episodesCopy
+        amountOfEpisodes: amount
       });
-      if (amount <= allEpisodesCopy.length && sortByCategory === "all") {
-        setAttributes({
-          amountOfEpisodes: amount
-        });
-      } else if (amount <= allFilteredEpisodes.length) {
-        setAttributes({
-          amountOfEpisodesFiltered: amount
-        });
-        setAttributes({
-          amountOfEpisodes: amount
-        });
-      }
     };
     let onChangeToggleTitle = event => {
       setAttributes({
@@ -271,7 +176,7 @@ __webpack_require__.r(__webpack_exports__);
       if (hasSubTitle && spliceSubTitle) {
         return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.RichText.Content, {
           tagName: "p",
-          value: subTitle[0].slice(0, subTitleCharacterAmount) + '&nbsp;[..]',
+          value: subTitle[0].slice(0, subTitleCharacterAmount) + "&nbsp;[..]",
           className: "wp-podcasts-305786-episode-subtitle"
         });
       } else if (hasSubTitle) {
@@ -283,63 +188,35 @@ __webpack_require__.r(__webpack_exports__);
       }
     };
     let showEpisodeTitle = topicTitle => {
-      if (hasTitle) {
-        return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("h1", {
-          className: "wp-podcasts-305786-episode-title"
-        }, topicTitle);
-      }
+      if (!hasTitle) return;
+      return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("h1", {
+        className: "wp-podcasts-305786-episode-title"
+      }, topicTitle);
     };
     let showEpisodeTags = () => {
-      if (episodeTags) {
-        return episodeTags.map((tag, i) => {
-          if (i === 0) {
-            return {
-              value: "all",
-              label: "All Categories"
-            };
-          } else {
-            return {
-              value: tag.id,
-              label: camelize(tag.name)
-            };
-          }
-        });
-      }
+      if (!episodeTags) return;
+      return episodeTags.map((tag, i) => i === 0 ? {
+        value: "all",
+        label: "All Categories"
+      } : {
+        value: tag.id,
+        label: camelize(tag.name)
+      });
     };
     let showSubTitleSplice = () => {
-      if (spliceSubTitle) {
-        return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.__experimentalNumberControl, {
-          shiftStep: subTitleCharacterAmount,
-          step: 1,
-          value: subTitleCharacterAmount,
-          onChange: amount => {
-            onChangeSpliceSubTitleAmount(amount);
-          }
-        });
-      }
+      if (!spliceSubTitle) return;
+      return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.__experimentalNumberControl, {
+        shiftStep: subTitleCharacterAmount,
+        step: 1,
+        value: subTitleCharacterAmount,
+        onChange: amount => {
+          onChangeSpliceSubTitleAmount(amount);
+        }
+      });
     };
     let showEpisodes = () => {
+      if (episodes.length <= 0) return;
       let episodesCopy = [...episodes];
-      let allEpisodesCopy = [...allEpisodes];
-      let allFilteredEpisodesCopy = [...allFilteredEpisodes];
-      if (episodesCopy.length === allEpisodesCopy.length && sortByCategory === "all") {
-        episodesCopy = allEpisodesCopy;
-      } else if (sortByCategory === "all") {
-        episodesCopy = episodesCopy.filter((episode, i) => {
-          if (i + 1 <= amountOfEpisodes) {
-            return episode;
-          }
-        });
-      } else {
-        episodesCopy = allFilteredEpisodesCopy.filter((episode, i) => {
-          if (i + 1 <= amountOfEpisodesFiltered) {
-            return episode;
-          }
-        });
-      }
-      if (sortEpisodes != "asc") {
-        episodesCopy = episodesCopy.reverse();
-      }
       return episodesCopy.map((topic, i) => {
         return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("article", {
           className: `${className} wp-podcasts-305786-episodes-wrapper`

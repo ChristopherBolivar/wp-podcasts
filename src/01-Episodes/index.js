@@ -12,29 +12,25 @@ import {
 } from "@wordpress/components";
 import { registerBlockType } from "@wordpress/blocks";
 import apiFetch from "@wordpress/api-fetch";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
 registerBlockType("wp-podcasts-305786/episodes", {
   title: __("Episodes Archive", "wp-podcasts-305786"),
   icon: "format-video",
   category: "wp_podcasts_305786_blocks",
   attributes: {
-    alreadyLoaded: {
-      type: "boolean",
-      default: false,
-    },
-    allEpisodes: {
-      type: "array",
-      default: [],
-    },
+    // allEpisodes: {
+    //   type: "array",
+    //   default: [],
+    // },
     allFilteredEpisodes: {
       type: "array",
       default: [],
     },
-    episodes: {
-      type: "array",
-      default: [],
-    },
+    // episodes: {
+    //   type: "array",
+    //   default: [],
+    // },
     episodeTags: {
       type: "array",
       default: [],
@@ -89,22 +85,18 @@ registerBlockType("wp-podcasts-305786/episodes", {
     // Pulling Set Attributes and Block Attributes from props
     const {
       attributes: {
-        alreadyLoaded,
-        episodes,
         sortEpisodes,
         episodeTags,
         sortByCategory,
-        allEpisodes,
         hasTitle,
         hasSubTitle,
         amountOfEpisodes,
-        amountOfEpisodesFiltered,
-        allFilteredEpisodes,
         spliceSubTitle,
         subTitleCharacterAmount,
       },
       className,
       setAttributes,
+
     } = props;
 
     const camelize = (str) => {
@@ -115,105 +107,54 @@ registerBlockType("wp-podcasts-305786/episodes", {
         .replace(/\s+/g, " ");
     };
 
-    useEffect(() => {
-      apiFetch({ path: "/wp/v2/tags?per_page=100" })
-        .then((tags) => {
-          return tags;
-        })
-        .then((results) => {
-          setAttributes({ episodeTags: results });
-        });
+    const [episodes, setEpisodes] = useState([])
+    const [allEpisodes, setAllEpisodes] = useState([])
 
-      apiFetch({ path: "/wp/v2/wp-podcasts-305786?per_page=25" })
+    useEffect(() => {
+      let filteredEpisodes = [...allEpisodes].filter((episode, i) =>
+        i + 1 <= amountOfEpisodes ? episode : null
+      );
+      setEpisodes(filteredEpisodes);
+    }, [amountOfEpisodes]);
+
+
+    useEffect(() => {
+      let useFetch =
+        sortByCategory != "all"
+          ? apiFetch({
+              path: `/wp/v2/wp-podcasts-305786?per_page=100&tags=${Number(
+                sortByCategory
+              )}`,
+            })
+          : apiFetch({ path: "/wp/v2/wp-podcasts-305786?per_page=25" });
+
+      useFetch
         .then((posts) => {
           return posts;
         })
         .then((res) => {
-          setAttributes({ allEpisodes: res });
-          if (!alreadyLoaded) {
-            setAttributes({ amountOfEpisodes: res.length });
-            setAttributes({ episodes: res });
-            setAttributes({ alreadyLoaded: true });
-          }
+          setEpisodes( res )
+          setAllEpisodes(res)
         })
-
         .catch((error) => {
-          // If the browser doesn't support AbortController then the code below will never log.
-          // However, in most cases this should be fine as it can be considered to be a progressive enhancement.
           if (error.name === "AbortError") {
             console.log("Request has been aborted");
           }
         });
-    }, []);
+    }, [sortByCategory]);
 
+   
     let onChangeFilterByCatergory = (category) => {
-      let allEpisodesCopy = [...allEpisodes];
       setAttributes({ sortByCategory: category });
-
-      if (category != "all") {
-        apiFetch({
-          path: `/wp/v2/wp-podcasts-305786?per_page=100&tags=${Number(
-            category
-          )}`,
-        }).then((posts) => {
-          setAttributes({ episodes: posts });
-          setAttributes({ allFilteredEpisodes: posts });
-          setAttributes({ amountOfEpisodes: posts.length });
-          setAttributes({ amountOfEpisodesFiltered: posts.length });
-        });
-      } else {
-        console.log("hey", allEpisodesCopy.length);
-        setAttributes({ episodes: allEpisodesCopy });
-        setAttributes({ amountOfEpisodes: allEpisodesCopy.length });
-        setAttributes({ amountOfEpisodesFiltered: allEpisodesCopy.length });
-      }
     };
 
     let onChangeSortEpisodes = (sortBy) => {
-      let episodesCopy = [...episodes];
-
-      if (sortBy === "asc") {
-        episodesCopy.sort((a, b) => {
-          return new Date(b.date) - new Date(a.date);
-        });
-      }
-
-      if (sortBy === "desc") {
-        episodesCopy = [...allEpisodes].reverse();
-      }
-      setAttributes({ episodes: episodesCopy });
       setAttributes({ sortEpisodes: sortBy });
     };
 
     let onChangeAmountOfEpisodes = (amount) => {
-      let episodesCopy = [...episodes];
-      let allEpisodesCopy = [...allEpisodes];
-      let allFilteredEpisodesCopy = [...allFilteredEpisodes];
-
-      if (amount === allEpisodesCopy.length) {
-        episodesCopy = allEpisodesCopy;
-      } else if (sortByCategory === "all") {
-        episodesCopy = allEpisodesCopy.filter((episode, i) => {
-          if (i + 1 <= amount) {
-            return episode;
-          }
-        });
-      } else {
-        episodesCopy = allFilteredEpisodesCopy.filter((episode, i) => {
-          if (i + 1 <= amount) {
-            return episode;
-          }
-        });
-      }
-      console.log(amount, amountOfEpisodes, amountOfEpisodesFiltered);
-      setAttributes({ episodes: episodesCopy });
-
-      if (amount <= allEpisodesCopy.length && sortByCategory === "all") {
-        setAttributes({ amountOfEpisodes: amount });
-      } else if (amount <= allFilteredEpisodes.length) {
-        setAttributes({ amountOfEpisodesFiltered: amount });
-        setAttributes({ amountOfEpisodes: amount });
-      }
+      if (amount > allEpisodes.length) return;
+      setAttributes({ amountOfEpisodes: amount });
     };
 
     let onChangeToggleTitle = (event) => {
@@ -222,9 +163,9 @@ registerBlockType("wp-podcasts-305786/episodes", {
     let onChangeSpliceSubTitle = (event) => {
       setAttributes({ spliceSubTitle: event });
     };
-   let onChangeSpliceSubTitleAmount = (amount)=>{
-     setAttributes({subTitleCharacterAmount: amount})
-   }
+    let onChangeSpliceSubTitleAmount = (amount) => {
+      setAttributes({ subTitleCharacterAmount: amount });
+    };
 
     let onChangeToggleSubTitle = (event) => {
       setAttributes({ hasSubTitle: event });
@@ -235,80 +176,52 @@ registerBlockType("wp-podcasts-305786/episodes", {
         return (
           <RichText.Content
             tagName='p'
-            value={subTitle[0].slice(0,subTitleCharacterAmount) + '&nbsp;[..]'}
+            value={subTitle[0].slice(0, subTitleCharacterAmount) + "&nbsp;[..]"}
             className='wp-podcasts-305786-episode-subtitle'
           />
         );
       } else if (hasSubTitle) {
-        return <RichText.Content
-          tagName='p'
-          value={subTitle}
-          className='wp-podcasts-305786-episode-subtitle'
-        />;
-      }
-    };
-
-    let showEpisodeTitle = (topicTitle) => {
-      if (hasTitle) {
         return (
-          <h1 className='wp-podcasts-305786-episode-title'>{topicTitle}</h1>
+          <RichText.Content
+            tagName='p'
+            value={subTitle}
+            className='wp-podcasts-305786-episode-subtitle'
+          />
         );
       }
     };
 
+    let showEpisodeTitle = (topicTitle) => {
+      if (!hasTitle) return;
+      return <h1 className='wp-podcasts-305786-episode-title'>{topicTitle}</h1>;
+    };
+
     let showEpisodeTags = () => {
-      if (episodeTags) {
-        return episodeTags.map((tag, i) => {
-          if (i === 0) {
-            return {
-              value: "all",
-              label: "All Categories",
-            };
-          } else {
-            return {
-              value: tag.id,
-              label: camelize(tag.name),
-            };
-          }
-        });
-      }
+      if (!episodeTags) return;
+      return episodeTags.map((tag, i) =>
+        i === 0
+          ? { value: "all", label: "All Categories" }
+          : { value: tag.id, label: camelize(tag.name) }
+      );
     };
 
     let showSubTitleSplice = () => {
-      if (spliceSubTitle) {
-        return <NumberControl shiftStep={subTitleCharacterAmount} step={1} value={subTitleCharacterAmount} onChange={(amount) => {
-          onChangeSpliceSubTitleAmount(amount);
-        }} />;
-      }
+      if (!spliceSubTitle) return;
+      return (
+        <NumberControl
+          shiftStep={subTitleCharacterAmount}
+          step={1}
+          value={subTitleCharacterAmount}
+          onChange={(amount) => {
+            onChangeSpliceSubTitleAmount(amount);
+          }}
+        />
+      );
     };
 
     let showEpisodes = () => {
+     if(episodes.length <= 0) return;
       let episodesCopy = [...episodes];
-      let allEpisodesCopy = [...allEpisodes];
-      let allFilteredEpisodesCopy = [...allFilteredEpisodes];
-
-      if (
-        episodesCopy.length === allEpisodesCopy.length &&
-        sortByCategory === "all"
-      ) {
-        episodesCopy = allEpisodesCopy;
-      } else if (sortByCategory === "all") {
-        episodesCopy = episodesCopy.filter((episode, i) => {
-          if (i + 1 <= amountOfEpisodes) {
-            return episode;
-          }
-        });
-      } else {
-        episodesCopy = allFilteredEpisodesCopy.filter((episode, i) => {
-          if (i + 1 <= amountOfEpisodesFiltered) {
-            return episode;
-          }
-        });
-      }
-
-      if (sortEpisodes != "asc") {
-        episodesCopy = episodesCopy.reverse();
-      }
 
       return episodesCopy.map((topic, i) => {
         return (
