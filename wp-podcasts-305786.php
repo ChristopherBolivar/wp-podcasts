@@ -133,6 +133,12 @@ function wp_podcasts_305786_wpdocs_selectively_enqueue_admin_script( $hook ) {
 }
 add_action( 'admin_enqueue_scripts', 'wp_podcasts_305786_wpdocs_selectively_enqueue_admin_script' );
 
+function wp_podcasts_305786_enqueue_scripts( ) {
+	wp_enqueue_style( 'wp-podcasts-305786-css', plugin_dir_url( __FILE__ ) . '/build/index.css' );
+}
+add_action( 'wp_enqueue_scripts', 'wp_podcasts_305786_enqueue_scripts' );
+
+
 // default plugin options
 function wp_podcasts_305786_options_default() {
 
@@ -270,23 +276,23 @@ function wp_podcasts_305786_register_blocks_render_callback( $attributes, $conte
 		  $query->the_post();
 
 		  $episodeString .= 
-		'<article class="'.$blockClassName.' wp-podcasts-305786-episodes-wrapper">
-		  <div className="wp-podcasts-305786-episode-thumbnail"></div>
-		  <div className="wp-podcasts-305786-episode-info">
-			<div className="wp-podcasts-305786-episode-thumbnail-inner"></div>
-			<div className="wp-podcasts-305786-episode-info-inner">
-			  <h1 class="wp-podcasts-305786-episode-title">'.esc_html(get_the_title()). '</h1>
-			  <p>
-				<span class="dashicons dashicons-admin-users"></span>'. esc_html(
-				get_post_meta(get_the_id(), 'wp_podcasts_305786_author', true)) .'
-				&nbsp; <span class="dashicons dashicons-calendar-alt"></span>'.
-				get_the_date( 'l F j, Y' ) .'&nbsp; <span class="dashicons dashicons-clock"></span> '.
-				esc_html( get_post_meta(get_the_id(), 'wp_podcasts_305786_duration',
-				true)) .'
-			  </p>
+			'<article class="'.$blockClassName.' wp-podcasts-305786-episodes-wrapper">
+			<div className="wp-podcasts-305786-episode-thumbnail"></div>
+			<div className="wp-podcasts-305786-episode-info">
+				<div className="wp-podcasts-305786-episode-thumbnail-inner"></div>
+				<div className="wp-podcasts-305786-episode-info-inner">
+				<h1 class="wp-podcasts-305786-episode-title">'.esc_html(get_the_title()). '</h1>
+				<p>
+					<span class="dashicons dashicons-admin-users"></span>'. esc_html(
+					get_post_meta(get_the_id(), 'wp_podcasts_305786_author', true)) .'
+					&nbsp; <span class="dashicons dashicons-calendar-alt"></span>'.
+					get_the_date( 'l F j, Y' ) .'&nbsp; <span class="dashicons dashicons-clock"></span> '.
+					esc_html( get_post_meta(get_the_id(), 'wp_podcasts_305786_duration',
+					true)) .'
+				</p>
+				</div>
 			</div>
-		  </div>
-		</article>';
+			</article>';
 	  
 		  
 	  }

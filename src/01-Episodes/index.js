@@ -11,6 +11,7 @@ import {
   __experimentalNumberControl as NumberControl,
 } from "@wordpress/components";
 import { registerBlockType } from "@wordpress/blocks";
+import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 import apiFetch from "@wordpress/api-fetch";
 import React, { useEffect, useState } from "react";
 
@@ -19,10 +20,6 @@ registerBlockType("wp-podcasts-305786/episodes", {
   icon: "format-video",
   category: "wp_podcasts_305786_blocks",
   attributes: {
-    allFilteredEpisodes: {
-      type: "array",
-      default: [],
-    },
     sortEpisodes: {
       type: "string",
       default: "asc",
@@ -43,7 +40,7 @@ registerBlockType("wp-podcasts-305786/episodes", {
       type: "number",
       default: 1,
     },
-    amountOfEpisodesFiltered: {
+    amountOfColumns: {
       type: "number",
       default: 1,
     },
@@ -55,6 +52,10 @@ registerBlockType("wp-podcasts-305786/episodes", {
       type: "number",
       default: 500,
     },
+    gridClasses: {
+      type: "string",
+      default: 'wp-podcasts-305786-flex wp-podcasts-305786-col-1',
+    }
   },
 
   styles: [
@@ -67,6 +68,10 @@ registerBlockType("wp-podcasts-305786/episodes", {
       name: "split",
       label: __("Split", "wp-podcasts-305786"),
     },
+    {
+      name: "stacked-card",
+      label: __("Stacked Card", "wp-podcasts-305786"),
+    },
   ],
 
   edit: (props) => {
@@ -78,12 +83,13 @@ registerBlockType("wp-podcasts-305786/episodes", {
         hasTitle,
         hasSubTitle,
         amountOfEpisodes,
+        amountOfColumns,
         spliceSubTitle,
         subTitleCharacterAmount,
+        gridClasses,
       },
       className,
       setAttributes,
-
     } = props;
 
     const camelize = (str) => {
@@ -94,9 +100,9 @@ registerBlockType("wp-podcasts-305786/episodes", {
         .replace(/\s+/g, " ");
     };
 
-    const [episodes, setEpisodes] = useState([])
-    const [allEpisodes, setAllEpisodes] = useState([])
-    const [episodeTags, setEpisodeTags] = useState([])
+    const [episodes, setEpisodes] = useState([]);
+    const [allEpisodes, setAllEpisodes] = useState([]);
+    const [episodeTags, setEpisodeTags] = useState([]);
 
     useEffect(() => {
       apiFetch({ path: "/wp/v2/tags?per_page=100" })
@@ -104,9 +110,7 @@ registerBlockType("wp-podcasts-305786/episodes", {
           return tags;
         })
         .then((res) => {
-         
-          setEpisodeTags( res )
-
+          setEpisodeTags(res);
         })
         .catch((error) => {
           if (error.name === "AbortError") {
@@ -115,11 +119,10 @@ registerBlockType("wp-podcasts-305786/episodes", {
         });
     }, []);
 
-
-   //When attributes sorty by category and amount of episodes are changes update episodes
+    //When attributes sorty by category and amount of episodes are changes update episodes
     useEffect(() => {
-      console.log(sortByCategory)
-      let useFetch =
+      console.log(sortByCategory);
+      const useFetch =
         sortByCategory != "all"
           ? apiFetch({
               path: `/wp/v2/wp-podcasts-305786?per_page=100&tags=${Number(
@@ -133,11 +136,11 @@ registerBlockType("wp-podcasts-305786/episodes", {
           return posts;
         })
         .then((res) => {
-          let filteredEpisodes = [...res].filter((episode, i) =>
-          i + 1 <= amountOfEpisodes ? episode : null
-        );
-          setEpisodes( filteredEpisodes )
-          setAllEpisodes(res)
+          const filteredEpisodes = [...res].filter((episode, i) =>
+            i + 1 <= amountOfEpisodes ? episode : null
+          );
+          setEpisodes(filteredEpisodes);
+          setAllEpisodes(res);
         })
         .catch((error) => {
           if (error.name === "AbortError") {
@@ -146,37 +149,39 @@ registerBlockType("wp-podcasts-305786/episodes", {
         });
     }, [sortByCategory, amountOfEpisodes]);
 
-
-   
-    let onChangeFilterByCatergory = (category) => {
-      console.log(category, 'cat')
+    const onChangeFilterByCatergory = (category) => {
       setAttributes({ sortByCategory: category });
     };
 
-    let onChangeSortEpisodes = (sortBy) => {
+    const onChangeSortEpisodes = (sortBy) => {
       setAttributes({ sortEpisodes: sortBy });
     };
 
-    let onChangeAmountOfEpisodes = (amount) => {
+    const onChangeAmountOfColumns = (amount) =>{
+      if(amount > episodes.length) return;
+      setAttributes({ amountOfColumns: amount, gridClasses: 'wp-podcasts-305786-flex wp-podcasts-305786-col-'+amount});
+    };
+
+    const onChangeAmountOfEpisodes = (amount) => {
       if (amount > allEpisodes.length) return;
       setAttributes({ amountOfEpisodes: amount });
     };
 
-    let onChangeToggleTitle = (event) => {
+    const onChangeToggconstitle = (event) => {
       setAttributes({ hasTitle: event });
     };
-    let onChangeSpliceSubTitle = (event) => {
+    const onChangeSpliceSubTitle = (event) => {
       setAttributes({ spliceSubTitle: event });
     };
-    let onChangeSpliceSubTitleAmount = (amount) => {
+    const onChangeSpliceSubTitleAmount = (amount) => {
       setAttributes({ subTitleCharacterAmount: amount });
     };
 
-    let onChangeToggleSubTitle = (event) => {
+    const onChangeToggleSubTitle = (event) => {
       setAttributes({ hasSubTitle: event });
     };
 
-    let showSubTitle = (subTitle) => {
+    const showSubTitle = (subTitle) => {
       if (hasSubTitle && spliceSubTitle) {
         return (
           <RichText.Content
@@ -196,21 +201,25 @@ registerBlockType("wp-podcasts-305786/episodes", {
       }
     };
 
-    let showEpisodeTitle = (topicTitle) => {
+    const showEpisodeTitle = (topicTitle) => {
       if (!hasTitle) return;
-      return <h1 className='wp-podcasts-305786-episode-title'>{topicTitle}</h1>;
+      return  <RichText.Content
+      tagName='h1'
+      value={topicTitle}
+      className='wp-podcasts-305786-episode-title'
+    />;
     };
 
-    let showEpisodeTags = () => {
+    const showEpisodeTags = () => {
       if (!episodeTags) return;
       return episodeTags.map((tag, i) =>
-        i === 0
-          ? { value: "all", label: "All Categories" }
-          : { value: tag.id, label: camelize(tag.name) }
+        i != 0
+          ? { value: tag.id, label: camelize(tag.name) }
+          : { value: "all", label: "All Categories" }
       );
     };
 
-    let showSubTitleSplice = () => {
+    const showSubTitleSplice = () => {
       if (!spliceSubTitle) return;
       return (
         <NumberControl
@@ -224,51 +233,47 @@ registerBlockType("wp-podcasts-305786/episodes", {
       );
     };
 
-    let showEpisodes = () => {
-     if(episodes.length <= 0) return;
-      let episodesCopy = [...episodes];
-     
-      let displayEpisodes = episodesCopy.map((topic, i) => {
+    
+
+    const showEpisodes = () => {
+      if (episodes.length <= 0) return;
+
+      const episodesCopy = [...episodes];
+      const displayEpisodes = episodesCopy.map((topic, i) => {
         return (
           <article
             className={`${className} wp-podcasts-305786-episodes-wrapper`}
           >
             <div className='wp-podcasts-305786-episode-thumbnail'>
-              <img src={topic.fimg_url} />
+              <img alt={topic.title.rendered + ' thumbnail'} src={topic.fimg_url} />
             </div>
             <div className='wp-podcasts-305786-episode-info'>
-              <div className='wp-podcasts-305786-episode-thumbnail-inner'>
-                <img src={topic.fimg_url} />
-              </div>
-              <div className='wp-podcasts-305786-episode-info-inner'>
-                {showEpisodeTitle(topic.title.rendered)}
-                <p>
-                  <Dashicon icon='admin-users' />
+              {showEpisodeTitle(topic.title.rendered)}
+              
+                <p className='wp-podcasts-305786-author'>
+                  <Dashicon icon='admin-users' />&nbsp;
                   {topic.podcast_data.wp_podcasts_305786_author}
                 </p>
-                <p className='wp-podcasts-305786-episode-episode-details'>
-                  <span>
-                    <Dashicon icon='calendar-alt' /> Published:&nbsp;
-                    {new Date(topic.date).toDateString()}&nbsp;
-                  </span>
-                  <span className='wp-podcasts-305786-episode-episode-duration-span'>
-                    <Dashicon icon='clock' />
-                    Duration:&nbsp;
-                    {topic.podcast_data.wp_podcasts_305786_duration}
-                  </span>
+                <p>
+                  <Dashicon icon='calendar-alt' /> Published:&nbsp;
+                  {new Date(topic.date).toDateString()}&nbsp;
                 </p>
-                {showSubTitle(topic.podcast_data.wp_podcasts_305786_subtitle)}
-                <a href='' className='wp-podcasts-305786-episode-info-btn'>
-                  <button className='wp-block-button wp-element-button'>
-                    More info
-                  </button>
-                </a>
-              </div>
+                <p className='wp-podcasts-305786-episode-episode-duration-span'>
+                  <Dashicon icon='clock' />
+                  &nbsp;Duration:&nbsp;
+                  {topic.podcast_data.wp_podcasts_305786_duration}
+                </p>
+              {showSubTitle(topic.podcast_data.wp_podcasts_305786_subtitle)}
+              <a href='#' className='wp-podcasts-305786-episode-info-btn'>
+                <button className='wp-block-button wp-element-button'>
+                  More info
+                </button>
+              </a>
             </div>
           </article>
         );
       });
-      
+
       return displayEpisodes;
     };
 
@@ -298,7 +303,8 @@ registerBlockType("wp-podcasts-305786/episodes", {
                 <SelectControl
                   label={__("Filter By:")}
                   value={sortByCategory}
-                  onChange={(filterBy) => {console.log(filterBy)
+                  onChange={(filterBy) => {
+                    console.log(filterBy);
                     onChangeFilterByCatergory(filterBy);
                   }}
                   options={showEpisodeTags()}
@@ -309,7 +315,7 @@ registerBlockType("wp-podcasts-305786/episodes", {
                   label={__("Toggle Title")}
                   help={hasTitle ? __("Has Title") : __("No Title")}
                   checked={hasTitle}
-                  onChange={(e) => onChangeToggleTitle(e)}
+                  onChange={(e) => onChangeToggconstitle(e)}
                 />
               </label>
               <label>
@@ -328,6 +334,16 @@ registerBlockType("wp-podcasts-305786/episodes", {
                   min={1}
                   max={allEpisodes.length}
                   onChange={(amount) => onChangeAmountOfEpisodes(amount)}
+                />
+              </label>
+              <label>
+                <RangeControl
+                  label={__("Number of Columns")}
+                  allowReset
+                  value={amountOfColumns}
+                  min={1}
+                  onChange={(amount) => onChangeAmountOfColumns(amount)}
+                  max={12}
                 />
               </label>
             </div>
@@ -366,20 +382,6 @@ registerBlockType("wp-podcasts-305786/episodes", {
             </div>
           </div>
         </PanelBody>
-        <PanelBody title={__("Share Settings", "wp-podcasts-305786")}>
-          <div className='components-base-control'>
-            <div className='components-base-control__field'>
-              <label className='components-base-control__label'>yellow</label>
-            </div>
-          </div>
-        </PanelBody>
-        <PanelBody title={__("Share Settings", "wp-podcasts-305786")}>
-          <div className='components-base-control'>
-            <div className='components-base-control__field'>
-              <label className='components-base-control__label'>yellow</label>
-            </div>
-          </div>
-        </PanelBody>
         <PanelBody title={__("Button Settings", "wp-podcasts-305786")}>
           <div className='components-base-control'>
             <div className='components-base-control__field'>
@@ -390,7 +392,7 @@ registerBlockType("wp-podcasts-305786/episodes", {
       </InspectorControls>,
 
       <section
-        className={`wp-podcasts-305786-block wp-podcasts-305786-episodes`}
+        className={`wp-podcasts-305786-block wp-podcasts-305786-episodes ${gridClasses}`}
       >
         {showEpisodes()}
       </section>,
