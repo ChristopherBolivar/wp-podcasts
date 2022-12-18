@@ -6,6 +6,7 @@
  *
  * Replace them with your own styles or remove the file completely.
  */
+ 
 .wp-block-create-block-wp-podcasts-305786 {
   border: 1px dotted #f00;
 }
@@ -30,43 +31,86 @@
 } 
 
 .wp-podcasts-305786-episodes-wrapper{
+  display: -ms-grid;
   display: grid;
 }
-.wp-podcasts-305786-episodes-wrapper.is-style-stacked {
+.wp-podcasts-305786-episodes-wrapper.is-style-stacked-card {
+
+
+}
+.wp-podcasts-305786-episodes-wrapper.is-style-split-card {
+  border: 3px solid #ccc;
+  border-radius: 25px;
+  padding: 1rem;
+}
+.wp-podcasts-305786-episodes-wrapper.is-style-stacked-card .wp-podcasts-305786-episode-thumbnail {
+  border: 3px solid #ccc;
+  border-bottom: none;
+  border-radius: 23px 23px 0 0;
+  overflow: clip;
+}
+.wp-podcasts-305786-episodes-wrapper.is-style-stacked-card .wp-podcasts-305786-episode-info {
+  border: 3px solid #ccc;
+  border-top: none;
+  border-radius: 0 0 23px 23px;
+  padding: 1rem
+}
+.wp-podcasts-305786-episodes-wrapper.is-style-stacked-card .wp-podcasts-305786-episode-thumbnail img {
+  margin-bottom: -.5rem;
+  border-bottom: 3px solid #ccc;
+}
+.wp-podcasts-305786-episodes-wrapper.is-style-stacked  {
+  -ms-grid-rows: -webkit-max-content;
+  -ms-grid-rows: max-content;
+  grid-template-rows: -webkit-max-content;
   grid-template-rows: max-content;
-  grid-gap: 10px;
 }
 .wp-podcasts-305786-episodes-wrapper.is-style-is-style-split {
-  flex-direction: row;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: row;
+          flex-direction: row;
 }
 
 
-.wp-podcasts-305786-episodes-wrapper.is-style-split {
+.wp-podcasts-305786-episodes-wrapper.is-style-split, .wp-podcasts-305786-episodes-wrapper.is-style-split-card {
+  -ms-grid-columns: 1fr 2rem 2fr;
   grid-template-columns: 1fr 2fr;
-  column-gap: 2rem;
+  -webkit-column-gap: 2rem;
+     -moz-column-gap: 2rem;
+          column-gap: 2rem;
 }
 
 
 .wp-podcasts-305786-col-1 {
-  flex-direction: column;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
 }
 
 section[class*="wp-podcasts-305786-col"] {
   display: -ms-grid;
   display: grid;
-  column-gap: 10px;
-  justify-content: space-around;
+  -webkit-column-gap: 20px;
+     -moz-column-gap: 20px;
+          column-gap: 20px;
+  -ms-flex-pack: distribute;
+      justify-content: space-around;
 }
 
 .wp-podcasts-305786-col-2 {
+  -ms-grid-columns: 45% 45%;
   grid-template-columns: 45% 45%;
  }
  
  .wp-podcasts-305786-col-3 {
+  -ms-grid-columns: 33% 33% 33%;
   grid-template-columns: 33% 33% 33%;
  }
 
  .wp-podcasts-305786-col-4 {
+  -ms-grid-columns: 25% 25% 25% 25%;
   grid-template-columns: 25% 25% 25% 25%;
  }
 

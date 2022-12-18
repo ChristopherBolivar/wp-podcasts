@@ -11,7 +11,7 @@ import {
   __experimentalNumberControl as NumberControl,
 } from "@wordpress/components";
 import { registerBlockType } from "@wordpress/blocks";
-import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
+import { InnerBlocks, useBlockProps } from "@wordpress/block-editor";
 import apiFetch from "@wordpress/api-fetch";
 import React, { useEffect, useState } from "react";
 
@@ -36,6 +36,10 @@ registerBlockType("wp-podcasts-305786/episodes", {
       type: "boolean",
       default: true,
     },
+    hasAuthor: {
+      type: "boolean",
+      default: true,
+    },
     amountOfEpisodes: {
       type: "number",
       default: 1,
@@ -54,8 +58,8 @@ registerBlockType("wp-podcasts-305786/episodes", {
     },
     gridClasses: {
       type: "string",
-      default: 'wp-podcasts-305786-flex wp-podcasts-305786-col-1',
-    }
+      default: "wp-podcasts-305786-flex wp-podcasts-305786-col-1",
+    },
   },
 
   styles: [
@@ -72,6 +76,10 @@ registerBlockType("wp-podcasts-305786/episodes", {
       name: "stacked-card",
       label: __("Stacked Card", "wp-podcasts-305786"),
     },
+    {
+      name: "split-card",
+      label: __("Split Card", "wp-podcasts-305786"),
+    },
   ],
 
   edit: (props) => {
@@ -82,6 +90,7 @@ registerBlockType("wp-podcasts-305786/episodes", {
         sortByCategory,
         hasTitle,
         hasSubTitle,
+        hasAuthor,
         amountOfEpisodes,
         amountOfColumns,
         spliceSubTitle,
@@ -157,9 +166,12 @@ registerBlockType("wp-podcasts-305786/episodes", {
       setAttributes({ sortEpisodes: sortBy });
     };
 
-    const onChangeAmountOfColumns = (amount) =>{
-      if(amount > episodes.length) return;
-      setAttributes({ amountOfColumns: amount, gridClasses: 'wp-podcasts-305786-flex wp-podcasts-305786-col-'+amount});
+    const onChangeAmountOfColumns = (amount) => {
+      if (amount > episodes.length) return;
+      setAttributes({
+        amountOfColumns: amount,
+        gridClasses: "wp-podcasts-305786-flex wp-podcasts-305786-col-" + amount,
+      });
     };
 
     const onChangeAmountOfEpisodes = (amount) => {
@@ -203,12 +215,24 @@ registerBlockType("wp-podcasts-305786/episodes", {
 
     const showEpisodeTitle = (topicTitle) => {
       if (!hasTitle) return;
-      return  <RichText.Content
-      tagName='h1'
-      value={topicTitle}
-      className='wp-podcasts-305786-episode-title'
-    />;
+      return (
+        <RichText.Content
+          tagName='h1'
+          value={topicTitle}
+          className='wp-podcasts-305786-episode-title'
+        />
+      );
     };
+
+    const showEpisodeAuthor = (author) =>{
+      console.log(author)
+      if (!hasAuthor & author.length <= 0) return;
+      <p className='wp-podcasts-305786-author'>
+      <Dashicon icon='admin-users' />
+      &nbsp;
+      {author}
+    </p>
+    }
 
     const showEpisodeTags = () => {
       if (!episodeTags) return;
@@ -233,8 +257,6 @@ registerBlockType("wp-podcasts-305786/episodes", {
       );
     };
 
-    
-
     const showEpisodes = () => {
       if (episodes.length <= 0) return;
 
@@ -245,27 +267,26 @@ registerBlockType("wp-podcasts-305786/episodes", {
             className={`${className} wp-podcasts-305786-episodes-wrapper`}
           >
             <div className='wp-podcasts-305786-episode-thumbnail'>
-              <img alt={topic.title.rendered + ' thumbnail'} src={topic.fimg_url} />
+              <img
+                alt={topic.title.rendered + " thumbnail"}
+                src={topic.fimg_url}
+              />
             </div>
             <div className='wp-podcasts-305786-episode-info'>
               {showEpisodeTitle(topic.title.rendered)}
-              
-                <p className='wp-podcasts-305786-author'>
-                  <Dashicon icon='admin-users' />&nbsp;
-                  {topic.podcast_data.wp_podcasts_305786_author}
-                </p>
-                <p>
-                  <Dashicon icon='calendar-alt' /> Published:&nbsp;
-                  {new Date(topic.date).toDateString()}&nbsp;
-                </p>
-                <p className='wp-podcasts-305786-episode-episode-duration-span'>
-                  <Dashicon icon='clock' />
-                  &nbsp;Duration:&nbsp;
-                  {topic.podcast_data.wp_podcasts_305786_duration}
-                </p>
+              {showEpisodeAuthor(topic.podcast_data.wp_podcasts_305786_author)}
+              <p>
+                <Dashicon icon='calendar-alt' /> Published:&nbsp;
+                {new Date(topic.date).toDateString()}&nbsp;
+              </p>
+              <p className='wp-podcasts-305786-episode-episode-duration-span'>
+                <Dashicon icon='clock' />
+                &nbsp;Duration:&nbsp;
+                {topic.podcast_data.wp_podcasts_305786_duration}
+              </p>
               {showSubTitle(topic.podcast_data.wp_podcasts_305786_subtitle)}
               <a href='#' className='wp-podcasts-305786-episode-info-btn'>
-                <button className='wp-block-button wp-element-button'>
+                <button>
                   More info
                 </button>
               </a>
