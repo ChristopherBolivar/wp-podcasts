@@ -306,3 +306,9 @@ function wp_podcasts_305786_register_blocks_render_callback( $attributes, $conte
   wp_reset_postdata();
 
 }
+
+
+function  wp_podcasts_305786_load_dashicons(){
+    wp_enqueue_style(site_url().'wp-includes/css/dashicons.css');
+}
+add_action('wp_enqueue_scripts', 'wp_podcasts_305786_load_dashicons');

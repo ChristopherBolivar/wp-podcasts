@@ -32,11 +32,31 @@ registerBlockType("wp-podcasts-305786/episodes", {
       type: "boolean",
       default: true,
     },
+    hasDescription: {
+      type: "boolean",
+      default: false
+    },
     hasSubTitle: {
       type: "boolean",
       default: true,
     },
     hasAuthor: {
+      type: "boolean",
+      default: true,
+    },
+    hasThumbnail: {
+      type: "boolean",
+      default: true,
+    },
+    hasDate: {
+      type: "boolean",
+      default: true,
+    },
+    hasDuration: {
+      type: "boolean",
+      default: true,
+    },
+    hasButton: {
       type: "boolean",
       default: true,
     },
@@ -89,8 +109,13 @@ registerBlockType("wp-podcasts-305786/episodes", {
         sortEpisodes,
         sortByCategory,
         hasTitle,
+        hasDescription,
         hasSubTitle,
         hasAuthor,
+        hasThumbnail,
+        hasDate,
+        hasDuration,
+        hasButton,
         amountOfEpisodes,
         amountOfColumns,
         spliceSubTitle,
@@ -142,6 +167,7 @@ registerBlockType("wp-podcasts-305786/episodes", {
 
       useFetch
         .then((posts) => {
+          console.log(posts)
           return posts;
         })
         .then((res) => {
@@ -182,6 +208,21 @@ registerBlockType("wp-podcasts-305786/episodes", {
     const onChangeToggconstitle = (event) => {
       setAttributes({ hasTitle: event });
     };
+    const onChangeToggleThumbnail = (event) => {
+      setAttributes({ hasThumbnail: event });
+    };
+    const onChangeToggleDate = (event) => {
+      setAttributes({ hasDate: event });
+    };
+    const onChangeToggleDuration = (event) => {
+      setAttributes({ hasDuration: event });
+    };
+    const onChangeToggleButton = (event) => {
+      setAttributes({ hasButton: event });
+    };
+    const onChangeToggleDescription = (event) => {
+      setAttributes({ hasDescription: event });
+    };
     const onChangeSpliceSubTitle = (event) => {
       setAttributes({ spliceSubTitle: event });
     };
@@ -213,6 +254,51 @@ registerBlockType("wp-podcasts-305786/episodes", {
       }
     };
 
+    const showEpisodeThumbnail = (thumbnail, altTitle) => {
+      if (!hasThumbnail) return;
+      return (
+        <div className='wp-podcasts-305786-episode-thumbnail'>
+          <img alt={`${altTitle} thumbnail`} src={thumbnail} />
+        </div>
+      );
+    };
+    const showEpisodeDate = (date) => {
+      if (!hasDate) return;
+      return (
+        <p>
+          <Dashicon icon='calendar-alt' /> Published:&nbsp;
+          {date}&nbsp;
+        </p>
+      );
+    };
+    const showDesciption = (description) => {
+      if (!hasDescription) return;
+      return (
+        <RichText tagName='p' value={description}/>
+      );
+    };
+
+
+    const showEpisodeDuration = (duration) => {
+      if (!hasDuration) return;
+      return (
+        <p className='wp-podcasts-305786-episode-episode-duration-span'>
+          <Dashicon icon='clock' />
+          &nbsp;Duration:&nbsp;
+          {duration}
+        </p>
+      );
+    };
+
+    const showEpisodeButton = (date) => {
+      if (!hasButton) return;
+      return (
+        <a href='#' className='wp-podcasts-305786-episode-info-btn'>
+        <button>More info</button>
+      </a>
+      );
+    };
+
     const showEpisodeTitle = (topicTitle) => {
       if (!hasTitle) return;
       return (
@@ -224,15 +310,15 @@ registerBlockType("wp-podcasts-305786/episodes", {
       );
     };
 
-    const showEpisodeAuthor = (author) =>{
-      console.log(author)
-      if (!hasAuthor & author.length <= 0) return;
+    const showEpisodeAuthor = (author) => {
+      console.log(author.length, hasAuthor);
+      if (!hasAuthor || author.length === 0) return;
       <p className='wp-podcasts-305786-author'>
-      <Dashicon icon='admin-users' />
-      &nbsp;
-      {author}
-    </p>
-    }
+        <Dashicon icon='admin-users' />
+        &nbsp;heyy
+        {author}
+      </p>;
+    };
 
     const showEpisodeTags = () => {
       if (!episodeTags) return;
@@ -266,30 +352,17 @@ registerBlockType("wp-podcasts-305786/episodes", {
           <article
             className={`${className} wp-podcasts-305786-episodes-wrapper`}
           >
-            <div className='wp-podcasts-305786-episode-thumbnail'>
-              <img
-                alt={topic.title.rendered + " thumbnail"}
-                src={topic.fimg_url}
-              />
-            </div>
+            {showEpisodeThumbnail(topic.fimg_url, topic.title.rendered)}
             <div className='wp-podcasts-305786-episode-info'>
               {showEpisodeTitle(topic.title.rendered)}
               {showEpisodeAuthor(topic.podcast_data.wp_podcasts_305786_author)}
-              <p>
-                <Dashicon icon='calendar-alt' /> Published:&nbsp;
-                {new Date(topic.date).toDateString()}&nbsp;
-              </p>
-              <p className='wp-podcasts-305786-episode-episode-duration-span'>
-                <Dashicon icon='clock' />
-                &nbsp;Duration:&nbsp;
-                {topic.podcast_data.wp_podcasts_305786_duration}
-              </p>
+              {showEpisodeDate(new Date(topic.date).toDateString())}
+              {showEpisodeDuration(
+                topic.podcast_data.wp_podcasts_305786_duration
+              )}
+              {showDesciption(topic.podcast_data.wp_podcasts_305786_description)}
               {showSubTitle(topic.podcast_data.wp_podcasts_305786_subtitle)}
-              <a href='#' className='wp-podcasts-305786-episode-info-btn'>
-                <button>
-                  More info
-                </button>
-              </a>
+             {showEpisodeButton()}
             </div>
           </article>
         );
@@ -320,7 +393,7 @@ registerBlockType("wp-podcasts-305786/episodes", {
                   ]}
                 />
               </label>
-              <label>
+              <label className='wp-podcasts-305786-labels'>
                 <SelectControl
                   label={__("Filter By:")}
                   value={sortByCategory}
@@ -331,7 +404,15 @@ registerBlockType("wp-podcasts-305786/episodes", {
                   options={showEpisodeTags()}
                 />
               </label>
-              <label>
+              <label className='wp-podcasts-305786-labels'>
+                <ToggleControl
+                  label={__("Toggle Thumbnail")}
+                  help={hasTitle ? __("Has Thumbnail") : __("No Thumbnail")}
+                  checked={hasThumbnail}
+                  onChange={(e) => onChangeToggleThumbnail(e)}
+                />
+              </label>
+              <label className='wp-podcasts-305786-labels'>
                 <ToggleControl
                   label={__("Toggle Title")}
                   help={hasTitle ? __("Has Title") : __("No Title")}
@@ -339,7 +420,15 @@ registerBlockType("wp-podcasts-305786/episodes", {
                   onChange={(e) => onChangeToggconstitle(e)}
                 />
               </label>
-              <label>
+              <label className='wp-podcasts-305786-labels'>
+                <ToggleControl
+                  label={__("Toggle Description")}
+                  help={hasDescription ? __("Has Description") : __("No Description")}
+                  checked={hasDescription}
+                  onChange={(e) => onChangeToggleDescription(e)}
+                />
+              </label>
+              <label className='wp-podcasts-305786-labels'>
                 <ToggleControl
                   label={__("Toggle Subtitle")}
                   help={hasSubTitle ? __("Has Sub Title") : __("No Sub Title")}
@@ -347,7 +436,31 @@ registerBlockType("wp-podcasts-305786/episodes", {
                   onChange={(e) => onChangeToggleSubTitle(e)}
                 />
               </label>
-              <label>
+              <label className='wp-podcasts-305786-labels'>
+                <ToggleControl
+                  label={__("Toggle Publish Date")}
+                  help={hasDate ? __("Has Date") : __("No Date")}
+                  checked={hasDate}
+                  onChange={(e) => onChangeToggleDate(e)}
+                />
+              </label>
+              <label className='wp-podcasts-305786-labels'>
+                <ToggleControl
+                  label={__("Toggle Duration")}
+                  help={hasDuration ? __("Has Duration") : __("No Duration")}
+                  checked={hasDuration}
+                  onChange={(e) => onChangeToggleDuration(e)}
+                />
+              </label>
+              <label className='wp-podcasts-305786-labels'>
+                <ToggleControl
+                  label={__("Toggle Button")}
+                  help={hasButton ? __("Has Button") : __("No Button")}
+                  checked={hasButton}
+                  onChange={(e) => onChangeToggleButton(e)}
+                />
+              </label>
+              <label className='wp-podcasts-305786-labels'>
                 <RangeControl
                   label={__("Number of Episodes")}
                   help={__("Filter by number if episodes you like to display")}
@@ -357,7 +470,7 @@ registerBlockType("wp-podcasts-305786/episodes", {
                   onChange={(amount) => onChangeAmountOfEpisodes(amount)}
                 />
               </label>
-              <label>
+              <label className='wp-podcasts-305786-labels'>
                 <RangeControl
                   label={__("Number of Columns")}
                   allowReset

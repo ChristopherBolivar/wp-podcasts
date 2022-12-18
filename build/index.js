@@ -48,11 +48,31 @@ __webpack_require__.r(__webpack_exports__);
       type: "boolean",
       default: true
     },
+    hasDescription: {
+      type: "boolean",
+      default: false
+    },
     hasSubTitle: {
       type: "boolean",
       default: true
     },
     hasAuthor: {
+      type: "boolean",
+      default: true
+    },
+    hasThumbnail: {
+      type: "boolean",
+      default: true
+    },
+    hasDate: {
+      type: "boolean",
+      default: true
+    },
+    hasDuration: {
+      type: "boolean",
+      default: true
+    },
+    hasButton: {
       type: "boolean",
       default: true
     },
@@ -98,8 +118,13 @@ __webpack_require__.r(__webpack_exports__);
         sortEpisodes,
         sortByCategory,
         hasTitle,
+        hasDescription,
         hasSubTitle,
         hasAuthor,
+        hasThumbnail,
+        hasDate,
+        hasDuration,
+        hasButton,
         amountOfEpisodes,
         amountOfColumns,
         spliceSubTitle,
@@ -140,6 +165,7 @@ __webpack_require__.r(__webpack_exports__);
         path: "/wp/v2/wp-podcasts-305786?per_page=25"
       });
       useFetch.then(posts => {
+        console.log(posts);
         return posts;
       }).then(res => {
         const filteredEpisodes = [...res].filter((episode, i) => i + 1 <= amountOfEpisodes ? episode : null);
@@ -179,6 +205,31 @@ __webpack_require__.r(__webpack_exports__);
         hasTitle: event
       });
     };
+    const onChangeToggleThumbnail = event => {
+      setAttributes({
+        hasThumbnail: event
+      });
+    };
+    const onChangeToggleDate = event => {
+      setAttributes({
+        hasDate: event
+      });
+    };
+    const onChangeToggleDuration = event => {
+      setAttributes({
+        hasDuration: event
+      });
+    };
+    const onChangeToggleButton = event => {
+      setAttributes({
+        hasButton: event
+      });
+    };
+    const onChangeToggleDescription = event => {
+      setAttributes({
+        hasDescription: event
+      });
+    };
     const onChangeSpliceSubTitle = event => {
       setAttributes({
         spliceSubTitle: event
@@ -209,6 +260,43 @@ __webpack_require__.r(__webpack_exports__);
         });
       }
     };
+    const showEpisodeThumbnail = (thumbnail, altTitle) => {
+      if (!hasThumbnail) return;
+      return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+        className: "wp-podcasts-305786-episode-thumbnail"
+      }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("img", {
+        alt: `${altTitle} thumbnail`,
+        src: thumbnail
+      }));
+    };
+    const showEpisodeDate = date => {
+      if (!hasDate) return;
+      return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.Dashicon, {
+        icon: "calendar-alt"
+      }), " Published:\xA0", date, "\xA0");
+    };
+    const showDesciption = description => {
+      if (!hasDescription) return;
+      return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.RichText, {
+        tagName: "p",
+        value: description
+      });
+    };
+    const showEpisodeDuration = duration => {
+      if (!hasDuration) return;
+      return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", {
+        className: "wp-podcasts-305786-episode-episode-duration-span"
+      }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.Dashicon, {
+        icon: "clock"
+      }), "\xA0Duration:\xA0", duration);
+    };
+    const showEpisodeButton = date => {
+      if (!hasButton) return;
+      return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("a", {
+        href: "#",
+        className: "wp-podcasts-305786-episode-info-btn"
+      }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", null, "More info"));
+    };
     const showEpisodeTitle = topicTitle => {
       if (!hasTitle) return;
       return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.RichText.Content, {
@@ -218,13 +306,13 @@ __webpack_require__.r(__webpack_exports__);
       });
     };
     const showEpisodeAuthor = author => {
-      console.log(author);
-      if (!hasAuthor & author.length <= 0) return;
+      console.log(author.length, hasAuthor);
+      if (!hasAuthor || author.length === 0) return;
       (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", {
         className: "wp-podcasts-305786-author"
       }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.Dashicon, {
         icon: "admin-users"
-      }), "\xA0", author);
+      }), "\xA0heyy", author);
     };
     const showEpisodeTags = () => {
       if (!episodeTags) return;
@@ -253,23 +341,9 @@ __webpack_require__.r(__webpack_exports__);
       const displayEpisodes = episodesCopy.map((topic, i) => {
         return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("article", {
           className: `${className} wp-podcasts-305786-episodes-wrapper`
-        }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-          className: "wp-podcasts-305786-episode-thumbnail"
-        }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("img", {
-          alt: topic.title.rendered + " thumbnail",
-          src: topic.fimg_url
-        })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+        }, showEpisodeThumbnail(topic.fimg_url, topic.title.rendered), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
           className: "wp-podcasts-305786-episode-info"
-        }, showEpisodeTitle(topic.title.rendered), showEpisodeAuthor(topic.podcast_data.wp_podcasts_305786_author), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.Dashicon, {
-          icon: "calendar-alt"
-        }), " Published:\xA0", new Date(topic.date).toDateString(), "\xA0"), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", {
-          className: "wp-podcasts-305786-episode-episode-duration-span"
-        }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.Dashicon, {
-          icon: "clock"
-        }), "\xA0Duration:\xA0", topic.podcast_data.wp_podcasts_305786_duration), showSubTitle(topic.podcast_data.wp_podcasts_305786_subtitle), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("a", {
-          href: "#",
-          className: "wp-podcasts-305786-episode-info-btn"
-        }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", null, "More info"))));
+        }, showEpisodeTitle(topic.title.rendered), showEpisodeAuthor(topic.podcast_data.wp_podcasts_305786_author), showEpisodeDate(new Date(topic.date).toDateString()), showEpisodeDuration(topic.podcast_data.wp_podcasts_305786_duration), showDesciption(topic.podcast_data.wp_podcasts_305786_description), showSubTitle(topic.podcast_data.wp_podcasts_305786_subtitle), showEpisodeButton()));
       });
       return displayEpisodes;
     };
@@ -297,7 +371,9 @@ __webpack_require__.r(__webpack_exports__);
         value: "desc",
         label: "Descending"
       }]
-    })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.SelectControl, {
+    })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", {
+      className: "wp-podcasts-305786-labels"
+    }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.SelectControl, {
       label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Filter By:"),
       value: sortByCategory,
       onChange: filterBy => {
@@ -305,24 +381,67 @@ __webpack_require__.r(__webpack_exports__);
         onChangeFilterByCatergory(filterBy);
       },
       options: showEpisodeTags()
-    })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.ToggleControl, {
+    })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", {
+      className: "wp-podcasts-305786-labels"
+    }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.ToggleControl, {
+      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Toggle Thumbnail"),
+      help: hasTitle ? (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Has Thumbnail") : (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("No Thumbnail"),
+      checked: hasThumbnail,
+      onChange: e => onChangeToggleThumbnail(e)
+    })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", {
+      className: "wp-podcasts-305786-labels"
+    }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.ToggleControl, {
       label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Toggle Title"),
       help: hasTitle ? (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Has Title") : (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("No Title"),
       checked: hasTitle,
       onChange: e => onChangeToggconstitle(e)
-    })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.ToggleControl, {
+    })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", {
+      className: "wp-podcasts-305786-labels"
+    }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.ToggleControl, {
+      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Toggle Description"),
+      help: hasDescription ? (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Has Description") : (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("No Description"),
+      checked: hasDescription,
+      onChange: e => onChangeToggleDescription(e)
+    })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", {
+      className: "wp-podcasts-305786-labels"
+    }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.ToggleControl, {
       label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Toggle Subtitle"),
       help: hasSubTitle ? (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Has Sub Title") : (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("No Sub Title"),
       checked: hasSubTitle,
       onChange: e => onChangeToggleSubTitle(e)
-    })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.RangeControl, {
+    })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", {
+      className: "wp-podcasts-305786-labels"
+    }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.ToggleControl, {
+      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Toggle Publish Date"),
+      help: hasDate ? (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Has Date") : (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("No Date"),
+      checked: hasDate,
+      onChange: e => onChangeToggleDate(e)
+    })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", {
+      className: "wp-podcasts-305786-labels"
+    }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.ToggleControl, {
+      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Toggle Duration"),
+      help: hasDuration ? (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Has Duration") : (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("No Duration"),
+      checked: hasDuration,
+      onChange: e => onChangeToggleDuration(e)
+    })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", {
+      className: "wp-podcasts-305786-labels"
+    }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.ToggleControl, {
+      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Toggle Button"),
+      help: hasButton ? (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Has Button") : (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("No Button"),
+      checked: hasButton,
+      onChange: e => onChangeToggleButton(e)
+    })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", {
+      className: "wp-podcasts-305786-labels"
+    }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.RangeControl, {
       label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Number of Episodes"),
       help: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Filter by number if episodes you like to display"),
       value: amountOfEpisodes,
       min: 1,
       max: allEpisodes.length,
       onChange: amount => onChangeAmountOfEpisodes(amount)
-    })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.RangeControl, {
+    })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", {
+      className: "wp-podcasts-305786-labels"
+    }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.RangeControl, {
       label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Number of Columns"),
       allowReset: true,
       value: amountOfColumns,
