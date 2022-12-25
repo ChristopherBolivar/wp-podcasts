@@ -22,31 +22,34 @@ function wp_podcasts_305786_import_rss_feed(){
 	foreach ($rss->channel->item as $item) {
 		$namespace = $item->getNameSpaces(true);
 		$itunes = $item->children($namespace['itunes']);
+		$episodeDescription = $item->children($namespace['content']);
+		$episodeCategories = $item->children($namespace['category']);
 		$podcastSubtitle = $itunes->subtitle;
 		$podcastKeywords = $itunes->keywords;
 
 
 		if (isset($item->enclosure)) {
 			$url = $item->enclosure['url'];
-			$title        = $item->title;
-			$size        = $item->enclosure['length'];
-			$desc       = $item->description;
-			$time         = $itunes->duration;
-			$pubDate = $item->pubDate;
-			$podcastAuthor =  $item->author;
-			$podcastSubtitle = $itunes->subtitle;
+			$title            = $item->title;
+			$desc      	      = $episodeCategories;
+			$time             = $itunes->duration;
+			$pubDate          = $item->pubDate;
+			$podcastAuthor    =  $item->author;
+			$podcastSubtitle  = $itunes->subtitle;
 			$wpPodcastPubDate = date("Y-m-d H:i:s", strtotime($pubDate));
 			$existing_episode = get_page_by_path( sanitize_title( $title ), 'OBJECT', 'wp-podcasts-305786');
 			// Add Featured Image to Post
 			$image_url        = preg_replace(
 								"/(.+(\.(jpg|gif|jp2|png|bmp|jpeg|svg)))(.*)$/",
 								'${1}',
-								$itunes->image->attributes()->href);
+								$itunes->image->attributes());
 			$image_name       = sanitize_url( $image_url );
 			$upload_dir       = wp_upload_dir(); // Set upload folder
 			$image_data       = file_get_contents($image_url); // Get image data
 			$unique_file_name = wp_unique_filename( $upload_dir['path'], $image_name ); // Generate unique name
 			$filename         = basename( $unique_file_name ); // Create image file name
+
+			wp_create_category( $itunes->category );
 	
 			if( $existing_episode === null ){
 			
@@ -58,13 +61,13 @@ function wp_podcasts_305786_import_rss_feed(){
 				'post_date'     =>   $wpPodcastPubDate,
 				'post_status' => 'publish',
 
-				'tags_input' => esc_html__( $podcastKeywords ),
+	
 				
 				'meta_input'   => array(
-					'wp_podcasts_305786_thumbnail' => sanitize_url( $itunes->image->attributes()->href ) ,
+					'wp_podcasts_305786_thumbnail' => sanitize_url( $image_url ) ,
 					'wp_podcasts_305786_file-url' => sanitize_url( $url ),
 					'wp_podcasts_305786_subtitle' => esc_html__( $podcastSubtitle ),
-					'wp_podcasts_305786_description' => esc_html__( $desc ),
+					'wp_podcasts_305786_description' => esc_html__( $episodeDescription ),
 					'wp_podcasts_305786_duration' =>  esc_html__( $time ),
 					'wp_podcasts_305786_author' => esc_html__(  $podcastAuthor ),
 					 
@@ -108,6 +111,8 @@ function wp_podcasts_305786_import_rss_feed(){
 			// And finally assign featured image to post
 			set_post_thumbnail( $inserted_episodes, $attach_id );
 
+			
+
 					}
 				}
 	 
@@ -121,7 +126,6 @@ function wp_podcasts_305786_import_rss_feed(){
 		
 	]);
 
-	
 
 }
 

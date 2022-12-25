@@ -41,7 +41,7 @@ function wp_podcasts_cpt_305786() {
 		'label'                 => __( 'Podcast Episode', 'wp-podcasts-305786' ),
 		'labels'                => $labels,
 		'supports'              => array( 'title', 'custom-fields','thumbnail' ),
-		'taxonomies'            => array( 'post_tag' ),
+		'taxonomies'            => array( 'post_tag', 'category' ),
 		'hierarchical'          => false,
 		'public'                => true,
 		'show_ui'               => true,

@@ -95,6 +95,22 @@ __webpack_require__.r(__webpack_exports__);
     gridClasses: {
       type: "string",
       default: "wp-podcasts-305786-flex wp-podcasts-305786-col-1"
+    },
+    titleColor: {
+      type: "string",
+      default: "#000000"
+    },
+    titleFontSize: {
+      type: "number",
+      default: 26
+    },
+    subTitleColor: {
+      type: "string",
+      default: "#000000"
+    },
+    subTitleFontSize: {
+      type: "number",
+      default: 14
     }
   },
   styles: [{
@@ -129,7 +145,11 @@ __webpack_require__.r(__webpack_exports__);
         amountOfColumns,
         spliceSubTitle,
         subTitleCharacterAmount,
-        gridClasses
+        gridClasses,
+        titleColor,
+        titleFontSize,
+        subTitleColor,
+        subTitleFontSize
       },
       className,
       setAttributes
@@ -200,7 +220,7 @@ __webpack_require__.r(__webpack_exports__);
         amountOfEpisodes: amount
       });
     };
-    const onChangeToggconstitle = event => {
+    const onChangeToggleTitle = event => {
       setAttributes({
         hasTitle: event
       });
@@ -235,11 +255,6 @@ __webpack_require__.r(__webpack_exports__);
         spliceSubTitle: event
       });
     };
-    const onChangeSpliceSubTitleAmount = amount => {
-      setAttributes({
-        subTitleCharacterAmount: amount
-      });
-    };
     const onChangeToggleSubTitle = event => {
       setAttributes({
         hasSubTitle: event
@@ -250,13 +265,21 @@ __webpack_require__.r(__webpack_exports__);
         return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.RichText.Content, {
           tagName: "p",
           value: subTitle[0].slice(0, subTitleCharacterAmount) + "&nbsp;[..]",
-          className: "wp-podcasts-305786-episode-subtitle"
+          className: "wp-podcasts-305786-episode-subtitle",
+          style: {
+            color: subTitleColor,
+            fontSize: subTitleFontSize
+          }
         });
       } else if (hasSubTitle) {
         return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.RichText.Content, {
           tagName: "p",
           value: subTitle,
-          className: "wp-podcasts-305786-episode-subtitle"
+          className: "wp-podcasts-305786-episode-subtitle",
+          style: {
+            color: subTitleColor,
+            fontSize: subTitleFontSize
+          }
         });
       }
     };
@@ -302,7 +325,11 @@ __webpack_require__.r(__webpack_exports__);
       return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.RichText.Content, {
         tagName: "h1",
         value: topicTitle,
-        className: "wp-podcasts-305786-episode-title"
+        className: "wp-podcasts-305786-episode-title",
+        style: {
+          color: titleColor,
+          fontSize: titleFontSize
+        }
       });
     };
     const showEpisodeAuthor = author => {
@@ -327,12 +354,13 @@ __webpack_require__.r(__webpack_exports__);
     const showSubTitleSplice = () => {
       if (!spliceSubTitle) return;
       return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.__experimentalNumberControl, {
-        shiftStep: subTitleCharacterAmount,
         step: 1,
-        value: subTitleCharacterAmount,
         onChange: amount => {
-          onChangeSpliceSubTitleAmount(amount);
-        }
+          setAttributes({
+            subTitleCharacterAmount: Number(amount)
+          });
+        },
+        value: subTitleCharacterAmount
       });
     };
     const showEpisodes = () => {
@@ -383,6 +411,24 @@ __webpack_require__.r(__webpack_exports__);
       options: showEpisodeTags()
     })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", {
       className: "wp-podcasts-305786-labels"
+    }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.RangeControl, {
+      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Number of Episodes"),
+      help: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Filter by number if episodes you like to display"),
+      value: amountOfEpisodes,
+      min: 1,
+      max: allEpisodes.length,
+      onChange: amount => onChangeAmountOfEpisodes(amount)
+    })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", {
+      className: "wp-podcasts-305786-labels"
+    }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.RangeControl, {
+      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Number of Columns"),
+      allowReset: true,
+      value: amountOfColumns,
+      min: 1,
+      onChange: amount => onChangeAmountOfColumns(amount),
+      max: 12
+    })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", {
+      className: "wp-podcasts-305786-labels"
     }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.ToggleControl, {
       label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Toggle Thumbnail"),
       help: hasTitle ? (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Has Thumbnail") : (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("No Thumbnail"),
@@ -394,7 +440,7 @@ __webpack_require__.r(__webpack_exports__);
       label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Toggle Title"),
       help: hasTitle ? (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Has Title") : (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("No Title"),
       checked: hasTitle,
-      onChange: e => onChangeToggconstitle(e)
+      onChange: e => onChangeToggleTitle(e)
     })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", {
       className: "wp-podcasts-305786-labels"
     }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.ToggleControl, {
@@ -430,34 +476,43 @@ __webpack_require__.r(__webpack_exports__);
       help: hasButton ? (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Has Button") : (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("No Button"),
       checked: hasButton,
       onChange: e => onChangeToggleButton(e)
-    })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", {
-      className: "wp-podcasts-305786-labels"
-    }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.RangeControl, {
-      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Number of Episodes"),
-      help: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Filter by number if episodes you like to display"),
-      value: amountOfEpisodes,
-      min: 1,
-      max: allEpisodes.length,
-      onChange: amount => onChangeAmountOfEpisodes(amount)
-    })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", {
-      className: "wp-podcasts-305786-labels"
-    }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.RangeControl, {
-      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Number of Columns"),
-      allowReset: true,
-      value: amountOfColumns,
-      min: 1,
-      onChange: amount => onChangeAmountOfColumns(amount),
-      max: 12
     }))))), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.PanelBody, {
-      title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Title Settings", "wp-podcasts-305786")
+      title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Title Settings", "wp-podcasts-305786"),
+      initialOpen: false
     }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
       className: "components-base-control"
     }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
       className: "components-base-control__field"
     }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", {
       className: "components-base-control__label"
-    })))), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.PanelBody, {
-      title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Subtitle Settings", "wp-podcasts-305786")
+    }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.ColorPaletteControl, {
+      value: titleColor,
+      onChange: color => setAttributes({
+        titleColor: color
+      })
+    }), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.FontSizePicker, {
+      fontSizes: [{
+        name: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Small"),
+        slug: "small",
+        size: 12
+      }, {
+        name: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Medium"),
+        slug: "medium",
+        size: 26
+      }, {
+        name: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Big"),
+        slug: "big",
+        size: 36
+      }],
+      value: titleFontSize,
+      fallbackFontSize: 26,
+      onChange: newFontSize => setAttributes({
+        titleFontSize: newFontSize
+      }),
+      withSlider: true
+    }))))), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.PanelBody, {
+      title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Subtitle Settings", "wp-podcasts-305786"),
+      initialOpen: false
     }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
       className: "components-base-control"
     }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
@@ -469,16 +524,70 @@ __webpack_require__.r(__webpack_exports__);
       help: spliceSubTitle ? (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Don't Splice Subtitle") : (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Splice Subtitle"),
       checked: spliceSubTitle,
       onChange: e => onChangeSpliceSubTitle(e)
-    }), showSubTitleSplice())))), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.PanelBody, {
-      title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Author Settings", "wp-podcasts-305786")
+    }), showSubTitleSplice(), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.ColorPaletteControl, {
+      value: subTitleColor,
+      onChange: color => setAttributes({
+        subTitleColor: color
+      })
+    }), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.FontSizePicker, {
+      fontSizes: [{
+        name: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Small"),
+        slug: "small",
+        size: 14
+      }, {
+        name: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Medium"),
+        slug: "medium",
+        size: 18
+      }, {
+        name: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Big"),
+        slug: "big",
+        size: 24
+      }],
+      value: subTitleFontSize,
+      fallbackFontSize: 14,
+      max: 36,
+      onChange: newFontSize => setAttributes({
+        subTitleFontSize: newFontSize
+      }),
+      withSlider: true
+    }))))), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.PanelBody, {
+      title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Publish Date Settings", "wp-podcasts-305786"),
+      initialOpen: false
     }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
       className: "components-base-control"
     }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
       className: "components-base-control__field"
     }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", {
       className: "components-base-control__label"
-    }, "yellow")))), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.PanelBody, {
-      title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Button Settings", "wp-podcasts-305786")
+    }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.ColorPaletteControl, {
+      value: subTitleColor,
+      onChange: color => setAttributes({
+        subTitleColor: color
+      })
+    }), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.FontSizePicker, {
+      fontSizes: [{
+        name: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Small"),
+        slug: "small",
+        size: 14
+      }, {
+        name: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Medium"),
+        slug: "medium",
+        size: 18
+      }, {
+        name: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Big"),
+        slug: "big",
+        size: 24
+      }],
+      value: subTitleFontSize,
+      fallbackFontSize: 14,
+      max: 36,
+      onChange: newFontSize => setAttributes({
+        subTitleFontSize: newFontSize
+      }),
+      withSlider: true
+    }))))), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.PanelBody, {
+      title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Button Settings", "wp-podcasts-305786"),
+      initialOpen: false
     }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
       className: "components-base-control"
     }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {

@@ -7,7 +7,7 @@
  * Replace them with your own styles or remove the file completely.
  */
 
-.wp-block-create-block-wp-podcasts-305786 {
+ .wp-block-create-block-wp-podcasts-305786 {
   border: 1px dotted #f00;
 }
 
@@ -136,7 +136,7 @@ section[class*="wp-podcasts-305786-col"] {
 .wp-podcasts-305786-col-3 {
   -ms-grid-columns: 33% 33% 33%;
   grid-template-columns: 33% 33% 33%;
-}
+}kk
 
 .wp-podcasts-305786-col-4 {
   -ms-grid-columns: 25% 25% 25% 25%;

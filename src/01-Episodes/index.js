@@ -1,5 +1,9 @@
 import { __ } from "@wordpress/i18n";
-import { InspectorControls, RichText } from "@wordpress/block-editor";
+import {
+  InspectorControls,
+  RichText,
+  ColorPaletteControl,
+} from "@wordpress/block-editor";
 import {
   PanelBody,
   SelectControl,
@@ -9,6 +13,7 @@ import {
   RangeControl,
   Dashicon,
   __experimentalNumberControl as NumberControl,
+  FontSizePicker,
 } from "@wordpress/components";
 import { registerBlockType } from "@wordpress/blocks";
 import { InnerBlocks, useBlockProps } from "@wordpress/block-editor";
@@ -34,7 +39,7 @@ registerBlockType("wp-podcasts-305786/episodes", {
     },
     hasDescription: {
       type: "boolean",
-      default: false
+      default: false,
     },
     hasSubTitle: {
       type: "boolean",
@@ -80,6 +85,22 @@ registerBlockType("wp-podcasts-305786/episodes", {
       type: "string",
       default: "wp-podcasts-305786-flex wp-podcasts-305786-col-1",
     },
+    titleColor: {
+      type: "string",
+      default: "#000000",
+    },
+    titleFontSize: {
+      type: "number",
+      default: 26,
+    },
+    subTitleColor: {
+      type: "string",
+      default: "#000000",
+    },
+    subTitleFontSize: {
+      type: "number",
+      default: 14,
+    },
   },
 
   styles: [
@@ -121,6 +142,10 @@ registerBlockType("wp-podcasts-305786/episodes", {
         spliceSubTitle,
         subTitleCharacterAmount,
         gridClasses,
+        titleColor,
+        titleFontSize,
+        subTitleColor,
+        subTitleFontSize,
       },
       className,
       setAttributes,
@@ -167,7 +192,7 @@ registerBlockType("wp-podcasts-305786/episodes", {
 
       useFetch
         .then((posts) => {
-          console.log(posts)
+          console.log(posts);
           return posts;
         })
         .then((res) => {
@@ -205,7 +230,7 @@ registerBlockType("wp-podcasts-305786/episodes", {
       setAttributes({ amountOfEpisodes: amount });
     };
 
-    const onChangeToggconstitle = (event) => {
+    const onChangeToggleTitle = (event) => {
       setAttributes({ hasTitle: event });
     };
     const onChangeToggleThumbnail = (event) => {
@@ -226,9 +251,6 @@ registerBlockType("wp-podcasts-305786/episodes", {
     const onChangeSpliceSubTitle = (event) => {
       setAttributes({ spliceSubTitle: event });
     };
-    const onChangeSpliceSubTitleAmount = (amount) => {
-      setAttributes({ subTitleCharacterAmount: amount });
-    };
 
     const onChangeToggleSubTitle = (event) => {
       setAttributes({ hasSubTitle: event });
@@ -241,6 +263,7 @@ registerBlockType("wp-podcasts-305786/episodes", {
             tagName='p'
             value={subTitle[0].slice(0, subTitleCharacterAmount) + "&nbsp;[..]"}
             className='wp-podcasts-305786-episode-subtitle'
+            style={{ color: subTitleColor, fontSize: subTitleFontSize }}
           />
         );
       } else if (hasSubTitle) {
@@ -249,6 +272,7 @@ registerBlockType("wp-podcasts-305786/episodes", {
             tagName='p'
             value={subTitle}
             className='wp-podcasts-305786-episode-subtitle'
+            style={{ color: subTitleColor, fontSize: subTitleFontSize }}
           />
         );
       }
@@ -273,11 +297,8 @@ registerBlockType("wp-podcasts-305786/episodes", {
     };
     const showDesciption = (description) => {
       if (!hasDescription) return;
-      return (
-        <RichText tagName='p' value={description}/>
-      );
+      return <RichText tagName='p' value={description} />;
     };
-
 
     const showEpisodeDuration = (duration) => {
       if (!hasDuration) return;
@@ -294,8 +315,8 @@ registerBlockType("wp-podcasts-305786/episodes", {
       if (!hasButton) return;
       return (
         <a href='#' className='wp-podcasts-305786-episode-info-btn'>
-        <button>More info</button>
-      </a>
+          <button>More info</button>
+        </a>
       );
     };
 
@@ -306,6 +327,7 @@ registerBlockType("wp-podcasts-305786/episodes", {
           tagName='h1'
           value={topicTitle}
           className='wp-podcasts-305786-episode-title'
+          style={{ color: titleColor, fontSize: titleFontSize }}
         />
       );
     };
@@ -333,12 +355,11 @@ registerBlockType("wp-podcasts-305786/episodes", {
       if (!spliceSubTitle) return;
       return (
         <NumberControl
-          shiftStep={subTitleCharacterAmount}
           step={1}
-          value={subTitleCharacterAmount}
           onChange={(amount) => {
-            onChangeSpliceSubTitleAmount(amount);
+            setAttributes({ subTitleCharacterAmount: Number(amount) });
           }}
+          value={subTitleCharacterAmount}
         />
       );
     };
@@ -360,9 +381,11 @@ registerBlockType("wp-podcasts-305786/episodes", {
               {showEpisodeDuration(
                 topic.podcast_data.wp_podcasts_305786_duration
               )}
-              {showDesciption(topic.podcast_data.wp_podcasts_305786_description)}
+              {showDesciption(
+                topic.podcast_data.wp_podcasts_305786_description
+              )}
               {showSubTitle(topic.podcast_data.wp_podcasts_305786_subtitle)}
-             {showEpisodeButton()}
+              {showEpisodeButton()}
             </div>
           </article>
         );
@@ -405,6 +428,27 @@ registerBlockType("wp-podcasts-305786/episodes", {
                 />
               </label>
               <label className='wp-podcasts-305786-labels'>
+                <RangeControl
+                  label={__("Number of Episodes")}
+                  help={__("Filter by number if episodes you like to display")}
+                  value={amountOfEpisodes}
+                  min={1}
+                  max={allEpisodes.length}
+                  onChange={(amount) => onChangeAmountOfEpisodes(amount)}
+                />
+              </label>
+              <label className='wp-podcasts-305786-labels'>
+                <RangeControl
+                  label={__("Number of Columns")}
+                  allowReset
+                  value={amountOfColumns}
+                  min={1}
+                  onChange={(amount) => onChangeAmountOfColumns(amount)}
+                  max={12}
+                />
+              </label>
+
+              <label className='wp-podcasts-305786-labels'>
                 <ToggleControl
                   label={__("Toggle Thumbnail")}
                   help={hasTitle ? __("Has Thumbnail") : __("No Thumbnail")}
@@ -417,13 +461,17 @@ registerBlockType("wp-podcasts-305786/episodes", {
                   label={__("Toggle Title")}
                   help={hasTitle ? __("Has Title") : __("No Title")}
                   checked={hasTitle}
-                  onChange={(e) => onChangeToggconstitle(e)}
+                  onChange={(e) => onChangeToggleTitle(e)}
                 />
               </label>
               <label className='wp-podcasts-305786-labels'>
                 <ToggleControl
                   label={__("Toggle Description")}
-                  help={hasDescription ? __("Has Description") : __("No Description")}
+                  help={
+                    hasDescription
+                      ? __("Has Description")
+                      : __("No Description")
+                  }
                   checked={hasDescription}
                   onChange={(e) => onChangeToggleDescription(e)}
                 />
@@ -460,37 +508,53 @@ registerBlockType("wp-podcasts-305786/episodes", {
                   onChange={(e) => onChangeToggleButton(e)}
                 />
               </label>
-              <label className='wp-podcasts-305786-labels'>
-                <RangeControl
-                  label={__("Number of Episodes")}
-                  help={__("Filter by number if episodes you like to display")}
-                  value={amountOfEpisodes}
-                  min={1}
-                  max={allEpisodes.length}
-                  onChange={(amount) => onChangeAmountOfEpisodes(amount)}
-                />
-              </label>
-              <label className='wp-podcasts-305786-labels'>
-                <RangeControl
-                  label={__("Number of Columns")}
-                  allowReset
-                  value={amountOfColumns}
-                  min={1}
-                  onChange={(amount) => onChangeAmountOfColumns(amount)}
-                  max={12}
-                />
-              </label>
             </div>
           </div>
         </PanelBody>
-        <PanelBody title={__("Title Settings", "wp-podcasts-305786")}>
+        <PanelBody
+          title={__("Title Settings", "wp-podcasts-305786")}
+          initialOpen={false}
+        >
           <div className='components-base-control'>
             <div className='components-base-control__field'>
-              <label className='components-base-control__label'></label>
+              <label className='components-base-control__label'>
+                <ColorPaletteControl
+                  value={titleColor}
+                  onChange={(color) => setAttributes({ titleColor: color })}
+                />
+                <FontSizePicker
+                  fontSizes={[
+                    {
+                      name: __("Small"),
+                      slug: "small",
+                      size: 12,
+                    },
+                    {
+                      name: __("Medium"),
+                      slug: "medium",
+                      size: 26,
+                    },
+                    {
+                      name: __("Big"),
+                      slug: "big",
+                      size: 36,
+                    },
+                  ]}
+                  value={titleFontSize}
+                  fallbackFontSize={26}
+                  onChange={(newFontSize) =>
+                    setAttributes({ titleFontSize: newFontSize })
+                  }
+                  withSlider
+                />
+              </label>
             </div>
           </div>
         </PanelBody>
-        <PanelBody title={__("Subtitle Settings", "wp-podcasts-305786")}>
+        <PanelBody
+          title={__("Subtitle Settings", "wp-podcasts-305786")}
+          initialOpen={false}
+        >
           <div className='components-base-control'>
             <div className='components-base-control__field'>
               <label className='components-base-control__label'>
@@ -505,18 +569,86 @@ registerBlockType("wp-podcasts-305786/episodes", {
                   onChange={(e) => onChangeSpliceSubTitle(e)}
                 />
                 {showSubTitleSplice()}
+
+                <ColorPaletteControl
+                  value={subTitleColor}
+                  onChange={(color) => setAttributes({ subTitleColor: color })}
+                />
+                <FontSizePicker
+                  fontSizes={[
+                    {
+                      name: __("Small"),
+                      slug: "small",
+                      size: 14,
+                    },
+                    {
+                      name: __("Medium"),
+                      slug: "medium",
+                      size: 18,
+                    },
+                    {
+                      name: __("Big"),
+                      slug: "big",
+                      size: 24,
+                    },
+                  ]}
+                  value={subTitleFontSize}
+                  fallbackFontSize={14}
+                  max={36}
+                  onChange={(newFontSize) =>
+                    setAttributes({ subTitleFontSize: newFontSize })
+                  }
+                  withSlider
+                />
               </label>
             </div>
           </div>
         </PanelBody>
-        <PanelBody title={__("Author Settings", "wp-podcasts-305786")}>
+        <PanelBody
+          title={__("Publish Date Settings", "wp-podcasts-305786")}
+          initialOpen={false}
+        >
           <div className='components-base-control'>
             <div className='components-base-control__field'>
-              <label className='components-base-control__label'>yellow</label>
+              <label className='components-base-control__label'>
+                <ColorPaletteControl
+                  value={subTitleColor}
+                  onChange={(color) => setAttributes({ subTitleColor: color })}
+                />
+                <FontSizePicker
+                  fontSizes={[
+                    {
+                      name: __("Small"),
+                      slug: "small",
+                      size: 14,
+                    },
+                    {
+                      name: __("Medium"),
+                      slug: "medium",
+                      size: 18,
+                    },
+                    {
+                      name: __("Big"),
+                      slug: "big",
+                      size: 24,
+                    },
+                  ]}
+                  value={subTitleFontSize}
+                  fallbackFontSize={14}
+                  max={36}
+                  onChange={(newFontSize) =>
+                    setAttributes({ subTitleFontSize: newFontSize })
+                  }
+                  withSlider
+                />
+              </label>
             </div>
           </div>
         </PanelBody>
-        <PanelBody title={__("Button Settings", "wp-podcasts-305786")}>
+        <PanelBody
+          title={__("Button Settings", "wp-podcasts-305786")}
+          initialOpen={false}
+        >
           <div className='components-base-control'>
             <div className='components-base-control__field'>
               <label className='components-base-control__label'>yellow</label>
