@@ -5,6 +5,8 @@ import {
   ColorPaletteControl,
 } from "@wordpress/block-editor";
 import {
+  Panel,
+  PanelRow,
   PanelBody,
   SelectControl,
   __experimentalRadio as Radio,
@@ -101,6 +103,15 @@ registerBlockType("wp-podcasts-305786/episodes", {
       type: "number",
       default: 14,
     },
+    publishDateColor: { type: "string", default: "#000000" },
+    publishDateFontSize: { type: "number", default: 14 },
+    durationColor: { type: "string", default: "#000000" },
+    durationFontSize: { type: "number", default: 14 },
+    hasDurationIcon: { type: "boolean", default: true },
+    hasCalendarIcon: { type: "boolean", default: true },
+    hasButtonIcon: { type: "boolean", default: true },
+    buttonColor: { type: "string", default: "#000000" },
+    buttonFontSize: { type: "number", default: 14 },
   },
 
   styles: [
@@ -146,6 +157,15 @@ registerBlockType("wp-podcasts-305786/episodes", {
         titleFontSize,
         subTitleColor,
         subTitleFontSize,
+        publishDateColor,
+        publishDateFontSize,
+        durationColor,
+        durationFontSize,
+        hasDurationIcon,
+        hasCalendarIcon,
+        hasButtonIcon,
+        buttonColor,
+        buttonFontSize,
       },
       className,
       setAttributes,
@@ -158,6 +178,42 @@ registerBlockType("wp-podcasts-305786/episodes", {
         })
         .replace(/\s+/g, " ");
     };
+
+    const fontSizesBody = [
+      {
+        name: __("Small"),
+        slug: "small",
+        size: 14,
+      },
+      {
+        name: __("Medium"),
+        slug: "medium",
+        size: 18,
+      },
+      {
+        name: __("Big"),
+        slug: "big",
+        size: 24,
+      },
+    ]
+
+    const fontSizesHeadings = [
+      {
+        name: __("Small"),
+        slug: "small",
+        size: 12,
+      },
+      {
+        name: __("Medium"),
+        slug: "medium",
+        size: 26,
+      },
+      {
+        name: __("Big"),
+        slug: "big",
+        size: 36,
+      },
+    ]
 
     const [episodes, setEpisodes] = useState([]);
     const [allEpisodes, setAllEpisodes] = useState([]);
@@ -196,9 +252,23 @@ registerBlockType("wp-podcasts-305786/episodes", {
           return posts;
         })
         .then((res) => {
+          //varialbe to hold the amount of episodes to show
           const filteredEpisodes = [...res].filter((episode, i) =>
             i + 1 <= amountOfEpisodes ? episode : null
           );
+
+          //Sort Episodes refactored
+          if (sortEpisodes === "newest") {
+            //Sort by newest  (default)
+            filteredEpisodes.sort((a, b) => {
+              return new Date(b.date) - new Date(a.date);
+            });
+          } else if (sortEpisodes === "oldest") {
+            //Sort by oldest
+            filteredEpisodes.sort((a, b) => {
+              return new Date(a.date) - new Date(b.date);
+            });
+          }
           setEpisodes(filteredEpisodes);
           setAllEpisodes(res);
         })
@@ -229,6 +299,10 @@ registerBlockType("wp-podcasts-305786/episodes", {
       if (amount > allEpisodes.length) return;
       setAttributes({ amountOfEpisodes: amount });
     };
+
+    //create a function to update all the attributes dynamically
+
+  
 
     const onChangeToggleTitle = (event) => {
       setAttributes({ hasTitle: event });
@@ -288,35 +362,61 @@ registerBlockType("wp-podcasts-305786/episodes", {
     };
     const showEpisodeDate = (date) => {
       if (!hasDate) return;
+
+      //variable that checks if hasCalendarIcon is true and if so returns the dashicon else returns an empty string
+      const calendarIcon = hasCalendarIcon ? (
+        <Dashicon icon='calendar-alt' style={{ paddingRight: "5px" }} />
+      ) : (
+        ""
+      );
+
       return (
-        <p>
-          <Dashicon icon='calendar-alt' /> Published:&nbsp;
+        <p style={{ color: publishDateColor, fontSize: publishDateFontSize }}>
+          {calendarIcon}
+          Published:&nbsp;
           {date}&nbsp;
         </p>
       );
     };
     const showDesciption = (description) => {
       if (!hasDescription) return;
-      return <RichText tagName='p' value={description} />;
+      return <div dangerouslySetInnerHTML={{ __html: description }}></div>;
     };
 
     const showEpisodeDuration = (duration) => {
       if (!hasDuration) return;
+
+      const durationIcon = hasDurationIcon ? (
+        <Dashicon icon='clock' style={{ paddingRight: "5px" }} />
+      ) : (
+        ""
+      );
+
       return (
-        <p className='wp-podcasts-305786-episode-episode-duration-span'>
-          <Dashicon icon='clock' />
-          &nbsp;Duration:&nbsp;
+        <p
+          className='wp-podcasts-305786-episode-episode-duration-span'
+          style={{ color: durationColor, fontSize: durationFontSize }}
+        >
+          {durationIcon}
+          Duration:&nbsp;
           {duration}
         </p>
       );
     };
 
-    const showEpisodeButton = (date) => {
+    const showEpisodeButton = () => {
       if (!hasButton) return;
+
+      const buttonIcon = hasButtonIcon ? (
+       'wp-podcasts-305786-episode-info-btn'
+      ) : (
+        ""
+      );
+
       return (
-        <a href='#' className='wp-podcasts-305786-episode-info-btn'>
-          <button>More info</button>
-        </a>
+        <a href='#' className={`${buttonIcon}`}>
+          <button style={{ fontSize: buttonFontSize, color: buttonColor }} >More info</button>
+        </a> 
       );
     };
 
@@ -337,7 +437,7 @@ registerBlockType("wp-podcasts-305786/episodes", {
       if (!hasAuthor || author.length === 0) return;
       <p className='wp-podcasts-305786-author'>
         <Dashicon icon='admin-users' />
-        &nbsp;heyy
+        &nbsp;
         {author}
       </p>;
     };
@@ -396,265 +496,389 @@ registerBlockType("wp-podcasts-305786/episodes", {
 
     return [
       <InspectorControls>
-        <PanelBody title={__("General Settings", "wp-podcasts-305786")}>
-          <div className='components-base-control'>
-            <div className='components-base-control__field'>
-              <label className='components-base-control__label'>
-                <SelectControl
-                  label={__("Sort By:")}
-                  value={sortEpisodes}
-                  onChange={(sortBy) => {
-                    onChangeSortEpisodes(sortBy);
-                  }}
-                  options={[
-                    {
-                      label: __("Sort by", "wp-podcasts-305786"),
-                      disabled: true,
-                    },
-                    { value: "asc", label: "Ascending" },
-                    { value: "desc", label: "Descending" },
-                  ]}
-                />
-              </label>
-              <label className='wp-podcasts-305786-labels'>
-                <SelectControl
-                  label={__("Filter By:")}
-                  value={sortByCategory}
-                  onChange={(filterBy) => {
-                    console.log(filterBy);
-                    onChangeFilterByCatergory(filterBy);
-                  }}
-                  options={showEpisodeTags()}
-                />
-              </label>
-              <label className='wp-podcasts-305786-labels'>
-                <RangeControl
-                  label={__("Number of Episodes")}
-                  help={__("Filter by number if episodes you like to display")}
-                  value={amountOfEpisodes}
-                  min={1}
-                  max={allEpisodes.length}
-                  onChange={(amount) => onChangeAmountOfEpisodes(amount)}
-                />
-              </label>
-              <label className='wp-podcasts-305786-labels'>
-                <RangeControl
-                  label={__("Number of Columns")}
-                  allowReset
-                  value={amountOfColumns}
-                  min={1}
-                  onChange={(amount) => onChangeAmountOfColumns(amount)}
-                  max={12}
-                />
-              </label>
-
-              <label className='wp-podcasts-305786-labels'>
-                <ToggleControl
-                  label={__("Toggle Thumbnail")}
-                  help={hasTitle ? __("Has Thumbnail") : __("No Thumbnail")}
-                  checked={hasThumbnail}
-                  onChange={(e) => onChangeToggleThumbnail(e)}
-                />
-              </label>
-              <label className='wp-podcasts-305786-labels'>
-                <ToggleControl
-                  label={__("Toggle Title")}
-                  help={hasTitle ? __("Has Title") : __("No Title")}
-                  checked={hasTitle}
-                  onChange={(e) => onChangeToggleTitle(e)}
-                />
-              </label>
-              <label className='wp-podcasts-305786-labels'>
-                <ToggleControl
-                  label={__("Toggle Description")}
-                  help={
-                    hasDescription
-                      ? __("Has Description")
-                      : __("No Description")
-                  }
-                  checked={hasDescription}
-                  onChange={(e) => onChangeToggleDescription(e)}
-                />
-              </label>
-              <label className='wp-podcasts-305786-labels'>
-                <ToggleControl
-                  label={__("Toggle Subtitle")}
-                  help={hasSubTitle ? __("Has Sub Title") : __("No Sub Title")}
-                  checked={hasSubTitle}
-                  onChange={(e) => onChangeToggleSubTitle(e)}
-                />
-              </label>
-              <label className='wp-podcasts-305786-labels'>
-                <ToggleControl
-                  label={__("Toggle Publish Date")}
-                  help={hasDate ? __("Has Date") : __("No Date")}
-                  checked={hasDate}
-                  onChange={(e) => onChangeToggleDate(e)}
-                />
-              </label>
-              <label className='wp-podcasts-305786-labels'>
-                <ToggleControl
-                  label={__("Toggle Duration")}
-                  help={hasDuration ? __("Has Duration") : __("No Duration")}
-                  checked={hasDuration}
-                  onChange={(e) => onChangeToggleDuration(e)}
-                />
-              </label>
-              <label className='wp-podcasts-305786-labels'>
-                <ToggleControl
-                  label={__("Toggle Button")}
-                  help={hasButton ? __("Has Button") : __("No Button")}
-                  checked={hasButton}
-                  onChange={(e) => onChangeToggleButton(e)}
-                />
-              </label>
+        <Panel header={__("WP Podcast Settings", "wp-podcasts-305786")}>
+          <PanelBody
+            title={__("General Settings", "wp-podcasts-305786")}
+            icon='admin-generic'
+          >
+            <div className='components-base-control'>
+              <div className='components-base-control__field'>
+                <PanelRow>
+                <label className='components-base-control__label'>
+                  <SelectControl
+                    label={__("Sort By:")}
+                    value={sortEpisodes}
+                    onChange={(sortBy) => {
+                      onChangeSortEpisodes(sortBy);
+                    }}
+                    options={[
+                      {
+                        label: __("Sort by", "wp-podcasts-305786"),
+                        disabled: true,
+                      },
+                      { value: "asc", label: "Ascending" },
+                      { value: "desc", label: "Descending" },
+                    ]}
+                  />
+                </label>
+                </PanelRow>
+                <PanelRow>
+                <label className='wp-podcasts-305786-labels'>
+                  <SelectControl
+                    label={__("Filter By:")}
+                    value={sortByCategory}
+                    onChange={(filterBy) => {
+                      console.log(filterBy);
+                      onChangeFilterByCatergory(filterBy);
+                    }}
+                    options={showEpisodeTags()}
+                  />
+                </label>
+                </PanelRow>
+                <PanelRow>
+                <label className='wp-podcasts-305786-labels'>
+                  <RangeControl
+                    label={__("Number of Episodes")}
+                    help={__(
+                      "Filter by number if episodes you like to display"
+                    )}
+                    value={amountOfEpisodes}
+                    min={1}
+                    max={allEpisodes.length}
+                    onChange={(amount) => onChangeAmountOfEpisodes(amount)}
+                  />
+                </label>
+                </PanelRow>
+                <PanelRow>
+                <label className='wp-podcasts-305786-labels'>
+                  <RangeControl
+                    label={__("Number of Columns")}
+                    allowReset
+                    value={amountOfColumns}
+                    min={1}
+                    onChange={(amount) => onChangeAmountOfColumns(amount)}
+                    max={12}
+                  />
+                </label>
+                </PanelRow>
+                <PanelRow>
+                <label className='wp-podcasts-305786-labels'>
+                  <ToggleControl
+                    label={__("Toggle Thumbnail")}
+                    help={hasTitle ? __("Has Thumbnail") : __("No Thumbnail")}
+                    checked={hasThumbnail}
+                    onChange={(e) => onChangeToggleThumbnail(e)}
+                  />
+                </label>
+                </PanelRow>
+                <PanelRow>
+                <label className='wp-podcasts-305786-labels'>
+                  <ToggleControl
+                    label={__("Toggle Title")}
+                    help={hasTitle ? __("Has Title") : __("No Title")}
+                    checked={hasTitle}
+                    onChange={(e) => onChangeToggleTitle(e)}
+                  />
+                </label>
+                </PanelRow>
+                <PanelRow>
+                <label className='wp-podcasts-305786-labels'>
+                  <ToggleControl
+                    label={__("Toggle Description")}
+                    help={
+                      hasDescription
+                        ? __("Has Description")
+                        : __("No Description")
+                    }
+                    checked={hasDescription}
+                    onChange={(e) => onChangeToggleDescription(e)}
+                  />
+                </label>
+                </PanelRow>
+                <PanelRow>
+                <label className='wp-podcasts-305786-labels'>
+                  <ToggleControl
+                    label={__("Toggle Subtitle")}
+                    help={
+                      hasSubTitle ? __("Has Sub Title") : __("No Sub Title")
+                    }
+                    checked={hasSubTitle}
+                    onChange={(e) => onChangeToggleSubTitle(e)}
+                  />
+                </label>
+                </PanelRow>
+                <PanelRow>
+                <label className='wp-podcasts-305786-labels'>
+                  <ToggleControl
+                    label={__("Toggle Publish Date")}
+                    help={hasDate ? __("Has Date") : __("No Date")}
+                    checked={hasDate}
+                    onChange={(e) => onChangeToggleDate(e)}
+                  />
+                </label>
+                </PanelRow>
+                <PanelRow>
+                <label className='wp-podcasts-305786-labels'>
+                  <ToggleControl
+                    label={__("Toggle Duration")}
+                    help={hasDuration ? __("Has Duration") : __("No Duration")}
+                    checked={hasDuration}
+                    onChange={(e) => onChangeToggleDuration(e)}
+                  />
+                </label>
+                </PanelRow>
+                <PanelRow>
+                <label className='wp-podcasts-305786-labels'>
+                  <ToggleControl
+                    label={__("Toggle Button")}
+                    help={hasButton ? __("Has Button") : __("No Button")}
+                    checked={hasButton}
+                    onChange={(e) => onChangeToggleButton(e)}
+                  />
+                </label>
+                </PanelRow>
+              </div>
             </div>
-          </div>
-        </PanelBody>
-        <PanelBody
-          title={__("Title Settings", "wp-podcasts-305786")}
-          initialOpen={false}
-        >
-          <div className='components-base-control'>
-            <div className='components-base-control__field'>
-              <label className='components-base-control__label'>
-                <ColorPaletteControl
-                  value={titleColor}
-                  onChange={(color) => setAttributes({ titleColor: color })}
-                />
-                <FontSizePicker
-                  fontSizes={[
-                    {
-                      name: __("Small"),
-                      slug: "small",
-                      size: 12,
-                    },
-                    {
-                      name: __("Medium"),
-                      slug: "medium",
-                      size: 26,
-                    },
-                    {
-                      name: __("Big"),
-                      slug: "big",
-                      size: 36,
-                    },
-                  ]}
-                  value={titleFontSize}
-                  fallbackFontSize={26}
-                  onChange={(newFontSize) =>
-                    setAttributes({ titleFontSize: newFontSize })
-                  }
-                  withSlider
-                />
-              </label>
+          </PanelBody>
+          <PanelBody
+            title={__("Title Settings", "wp-podcasts-305786")}
+            initialOpen={false}
+            icon='heading'
+          >
+            <div className='components-base-control'>
+              <div className='components-base-control__field'>
+                <PanelRow>
+                <label className='components-base-control__label'>
+                <RichText.Content
+                    tagName='h2'
+                    value={__("ChangeFont Color", "wp-podcasts-305786")}
+                  />
+                  <ColorPaletteControl
+                    value={titleColor}
+                    onChange={(color) => setAttributes({ titleColor: color })}
+                  />
+                  </label>
+                </PanelRow>
+                <PanelRow>
+                  <label className='components-base-control__label'>
+                  <RichText.Content
+                    tagName='h2'
+                    value={__("Change Font Size", "wp-podcasts-305786")}
+                  />
+                  <FontSizePicker
+                    fontSizes={fontSizesHeadings}
+                    value={titleFontSize}
+                    fallbackFontSize={26}
+                    onChange={(newFontSize) =>
+                      setAttributes({ titleFontSize: newFontSize })
+                    }
+                    withSlider
+                  />
+                </label>
+                </PanelRow>
+              </div>
             </div>
-          </div>
-        </PanelBody>
-        <PanelBody
-          title={__("Subtitle Settings", "wp-podcasts-305786")}
-          initialOpen={false}
-        >
-          <div className='components-base-control'>
-            <div className='components-base-control__field'>
-              <label className='components-base-control__label'>
-                <ToggleControl
-                  label={__("Limit Subtitle Character Count")}
-                  help={
-                    spliceSubTitle
-                      ? __("Don't Splice Subtitle")
-                      : __("Splice Subtitle")
-                  }
-                  checked={spliceSubTitle}
-                  onChange={(e) => onChangeSpliceSubTitle(e)}
-                />
-                {showSubTitleSplice()}
-
-                <ColorPaletteControl
-                  value={subTitleColor}
-                  onChange={(color) => setAttributes({ subTitleColor: color })}
-                />
-                <FontSizePicker
-                  fontSizes={[
-                    {
-                      name: __("Small"),
-                      slug: "small",
-                      size: 14,
-                    },
-                    {
-                      name: __("Medium"),
-                      slug: "medium",
-                      size: 18,
-                    },
-                    {
-                      name: __("Big"),
-                      slug: "big",
-                      size: 24,
-                    },
-                  ]}
-                  value={subTitleFontSize}
-                  fallbackFontSize={14}
-                  max={36}
-                  onChange={(newFontSize) =>
-                    setAttributes({ subTitleFontSize: newFontSize })
-                  }
-                  withSlider
-                />
-              </label>
+          </PanelBody>
+          <PanelBody
+            title={__("Subtitle Settings", "wp-podcasts-305786")}
+            initialOpen={false}
+            icon='text'
+          >
+            <div className='components-base-control'>
+              <div className='components-base-control__field'>
+                <PanelRow>
+                <label className='components-base-control__label'>
+                  <ToggleControl
+                    label={__("Limit Subtitle Character Count")}
+                    help={
+                      spliceSubTitle
+                        ? __("Don't Splice Subtitle")
+                        : __("Splice Subtitle")
+                    }
+                    checked={spliceSubTitle}
+                    onChange={(e) => onChangeSpliceSubTitle(e)}
+                  />
+                </label>
+                </PanelRow>
+                  {showSubTitleSplice()}
+                <PanelRow>
+                <label className='components-base-control__label'>
+                  <ColorPaletteControl
+                    value={subTitleColor}
+                    onChange={(color) =>
+                      setAttributes({ subTitleColor: color })
+                    }
+                  />
+                  </label>
+                </PanelRow>
+                <PanelRow>
+                <label className='components-base-control__label'>
+                  <FontSizePicker
+                    fontSizes={fontSizesBody}
+                    value={subTitleFontSize}
+                    fallbackFontSize={14}
+                    max={36}
+                    onChange={(newFontSize) =>
+                      setAttributes({ subTitleFontSize: newFontSize })
+                    }
+                    withSlider
+                  />
+                </label>
+                </PanelRow>
+              </div>
             </div>
-          </div>
-        </PanelBody>
-        <PanelBody
-          title={__("Publish Date Settings", "wp-podcasts-305786")}
-          initialOpen={false}
-        >
-          <div className='components-base-control'>
-            <div className='components-base-control__field'>
-              <label className='components-base-control__label'>
-                <ColorPaletteControl
-                  value={subTitleColor}
-                  onChange={(color) => setAttributes({ subTitleColor: color })}
-                />
-                <FontSizePicker
-                  fontSizes={[
-                    {
-                      name: __("Small"),
-                      slug: "small",
-                      size: 14,
-                    },
-                    {
-                      name: __("Medium"),
-                      slug: "medium",
-                      size: 18,
-                    },
-                    {
-                      name: __("Big"),
-                      slug: "big",
-                      size: 24,
-                    },
-                  ]}
-                  value={subTitleFontSize}
-                  fallbackFontSize={14}
-                  max={36}
-                  onChange={(newFontSize) =>
-                    setAttributes({ subTitleFontSize: newFontSize })
-                  }
-                  withSlider
-                />
-              </label>
+          </PanelBody>
+          <PanelBody
+            title={__("Publish Date Settings", "wp-podcasts-305786")}
+            initialOpen={false}
+            icon='calendar-alt'
+          >
+            <div className='components-base-control'>
+              <div className='components-base-control__field'>
+                <PanelRow>
+                <label className='components-base-control__label'>
+                 
+                  <ToggleControl
+                    label={__("Toggle Calendar Icon")}
+                    help={
+                      hasCalendarIcon
+                        ? __("Has Calendar Icon")
+                        : __("No Calendar Icon")
+                    }
+                    checked={hasCalendarIcon}
+                    onChange={(e) => setAttributes({ hasCalendarIcon: e })}
+                  />
+                </label>
+                </PanelRow>
+                <PanelRow>
+                <label className='components-base-control__label'>
+                <RichText.Content
+                    tagName='h3'
+                    value={__("Change Font Color", "wp-podcasts-305786")}
+                  />
+                  <ColorPaletteControl
+                    value={publishDateColor}
+                    onChange={(color) =>
+                      setAttributes({ publishDateColor: color })
+                    }
+                  />
+                </label>
+                </PanelRow>
+                <PanelRow>
+                <label className='components-base-control__label'>
+                <RichText.Content
+                    tagName='h3'
+                    value={__("Change Font Size", "wp-podcasts-305786")}
+                  />
+                  </label>
+                  </PanelRow>
+                  <PanelRow>
+                  <label className='components-base-control__label'>
+                  <FontSizePicker
+                    fontSizes={fontSizesBody}
+                    value={publishDateFontSize}
+                    fallbackFontSize={14}
+                    max={36}
+                    onChange={(newFontSize) =>
+                      setAttributes({ publishDateFontSize: newFontSize })
+                    }
+                    withSlider
+                  />
+                </label>
+                </PanelRow>
+              </div>
             </div>
-          </div>
-        </PanelBody>
-        <PanelBody
-          title={__("Button Settings", "wp-podcasts-305786")}
-          initialOpen={false}
-        >
-          <div className='components-base-control'>
-            <div className='components-base-control__field'>
-              <label className='components-base-control__label'>yellow</label>
+          </PanelBody>
+          <PanelBody
+            title={__("Duration Settings", "wp-podcasts-305786")}
+            initialOpen={false}
+            icon='clock'
+          >
+            <div className='components-base-control'>
+              <div className='components-base-control__field'>
+                <PanelRow>
+                <label className='components-base-control__label'>
+                  <ToggleControl
+                    label={__("Toggle Duration Icon")}
+                    help={hasDurationIcon ? __("Has Icon") : __("No Icon")}
+                    checked={hasDurationIcon}
+                    onChange={(e) => setAttributes({ hasDurationIcon: e })}
+                  />
+                </label>
+                </PanelRow>
+                <PanelRow>
+                <label className='components-base-control__label'>
+                  <ColorPaletteControl
+                    value={durationColor}
+                    onChange={(color) =>
+                      setAttributes({ durationColor: color })
+                    }
+                  />
+                </label>
+                </PanelRow>
+                <PanelRow>
+                <label className='components-base-control__label'>
+                  <FontSizePicker
+                    fontSizes={fontSizesBody}
+                    value={durationFontSize}
+                    fallbackFontSize={14}
+                    max={36}
+                    onChange={(newFontSize) =>
+                      setAttributes({ durationFontSize: newFontSize })
+                    }
+                    withSlider
+                  />
+                </label>
+                </PanelRow>
+              </div>
             </div>
-          </div>
-        </PanelBody>
+          </PanelBody>
+          <PanelBody
+            title={__("Button Settings", "wp-podcasts-305786")}
+            initialOpen={false}
+          >
+            <div className='components-base-control'>
+              <div className='components-base-control__field'>
+              <PanelRow>
+                <label className='components-base-control__label'>
+                  <ToggleControl
+                    label={__("Toggle Button Icon")}
+                    help={hasButtonIcon ? __("Has Icon") : __("No Icon")}
+                    checked={hasButtonIcon}
+                    onChange={(e) => setAttributes({ hasButtonIcon: e })}
+                  />
+                </label>
+                </PanelRow>
+                <PanelRow>
+                <label className='components-base-control__label'>
+                  <RichText.Content tagName='h3' value={__("Font Color", "wp-podcasts-305786")} />
+                  <ColorPaletteControl
+                    value={buttonColor}
+                    onChange={(color) =>
+                      setAttributes({ buttonColor: color })
+                    }
+                  />
+                </label>
+                </PanelRow>
+                <PanelRow>
+                <label className='components-base-control__label'>
+                  <RichText.Content tagName='h3' value={__("Font Size", "wp-podcasts-305786")} />
+                  <FontSizePicker
+                    fontSizes={fontSizesBody}
+                    value={buttonFontSize}
+                    fallbackFontSize={14}
+                    max={36}
+                    onChange={(newFontSize) =>
+                      setAttributes({ buttonFontSize: newFontSize })
+                    }
+                    withSlider
+                  />
+                </label>
+                </PanelRow>
+              </div>
+            </div>
+          </PanelBody>
+        </Panel>
       </InspectorControls>,
 
       <section
