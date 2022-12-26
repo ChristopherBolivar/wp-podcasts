@@ -10,6 +10,10 @@
  .wp-block-create-block-wp-podcasts-305786 {
   border: 1px dotted #f00;
 }
+.wp-podcasts-305786-panel .components-panel__row .wp-podcasts-305786-labels {
+  width: 100%;
+  max-width: 100%;
+}
 
 .wp-podcasts-305786-labels {
   padding: .5rem 0.125rem;
@@ -21,6 +25,13 @@
   padding: 0.125rem;
 }
 
+.wp-podcasts-inline {
+  display: inline-block;
+  padding-right: .5rem;
+}
+.wp-podcasts-block {
+  display: block;
+}
 
 .wp-podcasts-305786-episodes-wrapper {
   margin: 1rem 0;
@@ -58,7 +69,6 @@
  
 
 .wp-podcasts-305786-episode-info-btn button {
-    display: inline-block;
     border: none;
     padding: inherit;
     margin: inherit;
@@ -73,7 +83,7 @@
     -moz-appearance: none;
 }
 
-.wp-podcasts-305786-episode-info-btn button::after {
+.wp-podcasts-305786-episode-button-icon button::after {
   content: "\2192";
   padding-left: .5em;
 }
@@ -136,11 +146,20 @@ section[class*="wp-podcasts-305786-col"] {
 .wp-podcasts-305786-col-3 {
   -ms-grid-columns: 33% 33% 33%;
   grid-template-columns: 33% 33% 33%;
-}kk
-
+}
 .wp-podcasts-305786-col-4 {
   -ms-grid-columns: 25% 25% 25% 25%;
   grid-template-columns: 25% 25% 25% 25%;
 }
+.wp-podcasts-305786-col-5 {
+  -ms-grid-columns: 20% 20% 20% 20% 20%;
+  grid-template-columns: 20% 20% 20% 20% 20%;
+}
+
+.wp-podcast-305786-col-6 {
+  -ms-grid-columns: 16.666% 16.666% 16.666% 16.666% 16.666% 16.666%;
+  grid-template-columns: 16.666% 16.666% 16.666% 16.666% 16.666% 16.666%;
+}
+
 
 /*# sourceMappingURL=index.css.map*/
