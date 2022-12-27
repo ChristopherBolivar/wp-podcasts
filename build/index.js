@@ -104,10 +104,17 @@ __webpack_require__.r(__webpack_exports__);
       type: "object",
       default: {
         hasButton: true,
+        buttonText: "More Info",
         buttonColor: "#000000",
         buttonFontSize: 14,
         hasButtonIcon: true,
-        displayButtonInline: false
+        displayButtonInline: false,
+        hasBorder: false,
+        borderColor: "#cccccc",
+        borderRadius: 0,
+        borderStyle: "solid",
+        borderWidth: 1,
+        buttonPadding: 10
       }
     },
     amountOfEpisodes: {
@@ -145,26 +152,7 @@ __webpack_require__.r(__webpack_exports__);
         sortByCategory,
         amountOfEpisodes,
         amountOfColumns,
-        spliceSubTitle,
-        subTitleCharacterAmount,
         gridClasses,
-        titleColor,
-        titleFontSize,
-        subTitleColor,
-        subTitleFontSize,
-        publishDateColor,
-        publishDateFontSize,
-        durationColor,
-        durationFontSize,
-        hasDurationIcon,
-        hasCalendarIcon,
-        hasButtonIcon,
-        buttonColor,
-        buttonFontSize,
-        displayAuthorInline,
-        displayDurationInline,
-        displayPublishDateInline,
-        displayButtonInline,
         episodeTitleSettings,
         episodeDescriptionSettings,
         episodeSubTitleSettings,
@@ -172,7 +160,8 @@ __webpack_require__.r(__webpack_exports__);
         episodeThumbnailSettings,
         episodeDateSettings,
         episodeDurationSettings,
-        episodeButtonSettings
+        episodeButtonSettings,
+        episodeButtonBorderSettings
       },
       className,
       setAttributes
@@ -211,22 +200,6 @@ __webpack_require__.r(__webpack_exports__);
     const [episodes, setEpisodes] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useState)([]);
     const [allEpisodes, setAllEpisodes] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useState)([]);
     const [episodeTags, setEpisodeTags] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useState)([]);
-    const colors = [{
-      name: "Blue 20",
-      color: "#72aee6"
-    }];
-    const defaultBorder = {
-      color: "#72aee6",
-      style: "dashed",
-      width: "1px"
-    };
-    const [borders, setBorders] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useState)({
-      top: defaultBorder,
-      right: defaultBorder,
-      bottom: defaultBorder,
-      left: defaultBorder
-    });
-    const onChange = newBorders => setBorders(newBorders);
     (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
       _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_5___default()({
         path: "/wp/v2/tags?per_page=100"
@@ -249,7 +222,6 @@ __webpack_require__.r(__webpack_exports__);
         path: "/wp/v2/wp-podcasts-305786?per_page=25"
       });
       useFetch.then(posts => {
-        console.log(posts);
         return posts;
       }).then(res => {
         //varialbe to hold the amount of episodes to show
@@ -285,9 +257,6 @@ __webpack_require__.r(__webpack_exports__);
         amountOfEpisodes: amount
       });
     };
-
-    //create a function to update all the attributes dynamically
-
     const onChangeToggleThumbnail = event => {
       setAttributes({
         episodeThumbnailSettings: {
@@ -295,38 +264,10 @@ __webpack_require__.r(__webpack_exports__);
         }
       });
     };
-    const onChangeToggleDate = event => {
-      setAttributes({
-        episodeDateSettings: {
-          hasDate: event
-        }
-      });
-    };
-    const onChangeToggleDuration = event => {
-      setAttributes({
-        episodeDurationSettings: {
-          hasDuration: event
-        }
-      });
-    };
-    const onChangeToggleButton = event => {
-      setAttributes({
-        episodeButtonSettings: {
-          hasButton: event
-        }
-      });
-    };
     const onChangeToggleDescription = event => {
       setAttributes({
         episodeDescriptionSettings: {
           hasDescription: event
-        }
-      });
-    };
-    const onChangeSpliceSubTitle = event => {
-      setAttributes({
-        episodeSubTitleSettings: {
-          spliceSubTitle: event
         }
       });
     };
@@ -388,9 +329,12 @@ __webpack_require__.r(__webpack_exports__);
     };
     const showDesciption = description => {
       if (!episodeDescriptionSettings.hasDescription) return;
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(description, "text/html");
+      console.log(doc.body);
       return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
         dangerouslySetInnerHTML: {
-          __html: description
+          __html: doc.body.innerText
         }
       });
     };
@@ -403,7 +347,6 @@ __webpack_require__.r(__webpack_exports__);
           paddingRight: "5px"
         }
       }) : "";
-      console.log(episodeDurationSettings.hasDurationIcon);
       return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", {
         className: `wp-podcasts-305786-episode-episode-duration-span ${durationClass}`,
         style: {
@@ -414,6 +357,7 @@ __webpack_require__.r(__webpack_exports__);
     };
     const showEpisodeButton = () => {
       if (!episodeButtonSettings.hasButton) return;
+      console.log(episodeButtonSettings.borderStyle, "style=-=-=-=-=-=-=-=");
       const buttonIcon = episodeButtonSettings.hasButtonIcon ? "wp-podcasts-305786-episode-button-icon" : "";
       const buttonInlineBlock = episodeButtonSettings.displayButtonInline ? "wp-podcasts-inline" : "wp-podcasts-block";
       return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("a", {
@@ -424,7 +368,7 @@ __webpack_require__.r(__webpack_exports__);
           fontSize: episodeButtonSettings.buttonFontSize,
           color: episodeButtonSettings.buttonColor
         }
-      }, "More info"));
+      }, episodeButtonSettings.buttonText));
     };
     const showEpisodeTitle = topicTitle => {
       if (!episodeTitleSettings.hasTitle) return;
@@ -439,12 +383,21 @@ __webpack_require__.r(__webpack_exports__);
       });
     };
     const showEpisodeAuthor = author => {
-      if (!episodeAuthorSettings.hasAuthor || author.length === 0) return;
-      (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", {
-        className: "wp-podcasts-305786-author"
-      }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.Dashicon, {
-        icon: "admin-users"
-      }), "\xA0", author);
+      if (!episodeAuthorSettings.hasAuthor || author.length <= 0) return;
+      const authorIcon = episodeAuthorSettings.hasAuthorIcon ? (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.Dashicon, {
+        icon: "admin-users",
+        style: {
+          paddingRight: "5px"
+        }
+      }) : "";
+      const authorInline = episodeAuthorSettings.displayAuthorInline ? "wp-podcasts-inline" : "wp-podcasts-block";
+      return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", {
+        style: {
+          fontSize: episodeAuthorSettings.authorFontSize,
+          color: episodeAuthorSettings.authorColor
+        },
+        className: `wp-podcasts-305786-author ${authorInline}`
+      }, authorIcon, author);
     };
     const showEpisodeTags = () => {
       if (!episodeTags) return;
@@ -517,7 +470,6 @@ __webpack_require__.r(__webpack_exports__);
       label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Filter By:"),
       value: sortByCategory,
       onChange: filterBy => {
-        console.log(filterBy);
         onChangeFilterByCatergory(filterBy);
       },
       options: showEpisodeTags()
@@ -538,7 +490,7 @@ __webpack_require__.r(__webpack_exports__);
       value: amountOfColumns,
       min: 1,
       onChange: amount => onChangeAmountOfColumns(amount),
-      max: 12
+      max: 6
     }))), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.PanelRow, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", {
       className: "wp-podcasts-305786-labels"
     }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.ToggleControl, {
@@ -572,6 +524,18 @@ __webpack_require__.r(__webpack_exports__);
       help: episodeSubTitleSettings.hasSubTitle ? (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Has Sub Title") : (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("No Sub Title"),
       checked: episodeSubTitleSettings.hasSubTitle,
       onChange: e => onChangeToggleSubTitle(e)
+    }))), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.PanelRow, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", {
+      className: "wp-podcasts-305786-labels"
+    }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.ToggleControl, {
+      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Toggle Author"),
+      help: episodeAuthorSettings.hasAuthor ? (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Has Author") : (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("No Author"),
+      checked: episodeAuthorSettings.hasAuthor,
+      onChange: e => setAttributes({
+        episodeAuthorSettings: {
+          ...episodeAuthorSettings,
+          hasAuthor: e
+        }
+      })
     }))), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.PanelRow, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", {
       className: "wp-podcasts-305786-labels"
     }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.ToggleControl, {
@@ -692,6 +656,62 @@ __webpack_require__.r(__webpack_exports__);
       }),
       withSlider: true
     })))))), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.PanelBody, {
+      title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Author Settings", "wp-podcasts-305786"),
+      initialOpen: false,
+      icon: "users"
+    }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+      className: "components-base-control"
+    }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+      className: "components-base-control__field"
+    }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.PanelRow, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", {
+      className: "components-base-control__label wp-podcasts-305786-labels"
+    }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.ToggleControl, {
+      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Toggle Author Icon"),
+      help: episodeAuthorSettings.hasAuthorIcon ? (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Has Author Icon") : (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("No Author Icon"),
+      checked: episodeAuthorSettings.hasAuthorIcon,
+      onChange: e => setAttributes({
+        episodeAuthorSettings: {
+          ...episodeAuthorSettings,
+          hasAuthorIcon: e
+        }
+      })
+    }))), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.PanelRow, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", {
+      className: "components-base-control__label wp-podcasts-305786-labels"
+    }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.ToggleControl, {
+      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Display Inline"),
+      help: episodeAuthorSettings.displayInline ? (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Display Inline") : (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Display Block"),
+      checked: episodeAuthorSettings.displayInline,
+      onChange: e => setAttributes({
+        episodeAuthorSettings: {
+          ...episodeAuthorSettings,
+          displayInline: e
+        }
+      })
+    }))), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.PanelRow, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", {
+      className: "components-base-control__label wp-podcasts-305786-labels"
+    }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.ColorPaletteControl, {
+      value: episodeAuthorSettings.authorColor,
+      onChange: color => setAttributes({
+        episodeAuthorSettings: {
+          ...episodeAuthorSettings,
+          authorColor: color
+        }
+      })
+    }))), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.PanelRow, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", {
+      className: "components-base-control__label wp-podcasts-305786-labels"
+    }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.FontSizePicker, {
+      fontSizes: fontSizesBody,
+      value: episodeAuthorSettings.authorFontSize,
+      fallbackFontSize: 14,
+      max: 36,
+      onChange: newFontSize => setAttributes({
+        episodeAuthorSettings: {
+          ...episodeAuthorSettings,
+          authorFontSize: newFontSize
+        }
+      }),
+      withSlider: true
+    })))))), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.PanelBody, {
       title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Publish Date Settings", "wp-podcasts-305786"),
       initialOpen: false,
       icon: "calendar-alt"
@@ -779,27 +799,36 @@ __webpack_require__.r(__webpack_exports__);
       className: "components-base-control__label wp-podcasts-305786-labels"
     }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.ToggleControl, {
       label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Display Inline"),
-      help: displayDurationInline ? (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Display Inline") : (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Display Block"),
-      checked: displayDurationInline,
+      help: episodeDurationSettings.displayDurationInline ? (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Display Inline") : (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Display Block"),
+      checked: episodeDurationSettings.displayDurationInline,
       onChange: e => setAttributes({
-        displayDurationInline: e
+        episodeDurationSettings: {
+          ...episodeDurationSettings,
+          displayDurationInline: e
+        }
       })
     }))), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.PanelRow, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", {
       className: "components-base-control__label wp-podcasts-305786-labels"
     }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.ColorPaletteControl, {
-      value: durationColor,
+      value: episodeDurationSettings.durationColor,
       onChange: color => setAttributes({
-        durationColor: color
+        episodeDurationSettings: {
+          ...episodeDurationSettings,
+          durationColor: color
+        }
       })
     }))), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.PanelRow, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", {
       className: "components-base-control__label wp-podcasts-305786-labels"
     }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.FontSizePicker, {
       fontSizes: fontSizesBody,
-      value: durationFontSize,
+      value: episodeDurationSettings.durationFontSize,
       fallbackFontSize: 14,
       max: 36,
       onChange: newFontSize => setAttributes({
-        durationFontSize: newFontSize
+        episodeDurationSettings: {
+          ...episodeDurationSettings,
+          durationFontSize: newFontSize
+        }
       }),
       withSlider: true
     })))))), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.PanelBody, {
@@ -835,11 +864,18 @@ __webpack_require__.r(__webpack_exports__);
       })
     }))), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.PanelRow, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", {
       className: "components-base-control__label wp-podcasts-305786-labels"
-    }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.__experimentalBorderBoxControl, {
-      colors: colors,
-      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Borders"),
-      onChange: onChange,
-      value: borders
+    }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.__experimentalInputControl, {
+      label: "Button Text",
+      value: episodeButtonSettings.buttonText,
+      onChange: nextValue => {
+        if (nextValue.split("") <= 0) nextValue = (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("More Info");
+        setAttributes({
+          episodeButtonSettings: {
+            ...episodeButtonSettings,
+            buttonText: nextValue
+          }
+        });
+      }
     }))), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.PanelRow, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", {
       className: "components-base-control__label wp-podcasts-305786-labels"
     }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.RichText.Content, {

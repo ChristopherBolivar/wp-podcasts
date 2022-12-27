@@ -5,6 +5,7 @@ import {
   ColorPaletteControl,
 } from "@wordpress/block-editor";
 import {
+  __experimentalInputControl as InputControl,
   Panel,
   PanelRow,
   PanelBody,
@@ -15,7 +16,6 @@ import {
   RangeControl,
   Dashicon,
   __experimentalNumberControl as NumberControl,
-  __experimentalBorderBoxControl as BorderBoxControl,
   FontSizePicker,
 } from "@wordpress/components";
 import { registerBlockType } from "@wordpress/blocks";
@@ -98,10 +98,17 @@ registerBlockType("wp-podcasts-305786/episodes", {
       type: "object",
       default: {
         hasButton: true,
+        buttonText: "More Info",
         buttonColor: "#000000",
         buttonFontSize: 14,
         hasButtonIcon: true,
         displayButtonInline: false,
+        hasBorder: false,
+        borderColor: "#cccccc",
+        borderRadius: 0,
+        borderStyle: "solid",
+        borderWidth: 1,
+        buttonPadding: 10,
       },
     },
     amountOfEpisodes: {
@@ -116,7 +123,6 @@ registerBlockType("wp-podcasts-305786/episodes", {
       type: "string",
       default: "wp-podcasts-305786-flex wp-podcasts-305786-col-1",
     },
-   
   },
 
   styles: [
@@ -147,26 +153,7 @@ registerBlockType("wp-podcasts-305786/episodes", {
         sortByCategory,
         amountOfEpisodes,
         amountOfColumns,
-        spliceSubTitle,
-        subTitleCharacterAmount,
         gridClasses,
-        titleColor,
-        titleFontSize,
-        subTitleColor,
-        subTitleFontSize,
-        publishDateColor,
-        publishDateFontSize,
-        durationColor,
-        durationFontSize,
-        hasDurationIcon,
-        hasCalendarIcon,
-        hasButtonIcon,
-        buttonColor,
-        buttonFontSize,
-        displayAuthorInline,
-        displayDurationInline,
-        displayPublishDateInline,
-        displayButtonInline,
         episodeTitleSettings,
         episodeDescriptionSettings,
         episodeSubTitleSettings,
@@ -175,6 +162,7 @@ registerBlockType("wp-podcasts-305786/episodes", {
         episodeDateSettings,
         episodeDurationSettings,
         episodeButtonSettings,
+        episodeButtonBorderSettings,
       },
       className,
       setAttributes,
@@ -228,23 +216,6 @@ registerBlockType("wp-podcasts-305786/episodes", {
     const [allEpisodes, setAllEpisodes] = useState([]);
     const [episodeTags, setEpisodeTags] = useState([]);
 
-    const colors = [{ name: "Blue 20", color: "#72aee6" }];
-
-    const defaultBorder = {
-      color: "#72aee6",
-      style: "dashed",
-      width: "1px",
-    };
-
-    const [borders, setBorders] = useState({
-      top: defaultBorder,
-      right: defaultBorder,
-      bottom: defaultBorder,
-      left: defaultBorder,
-    });
-
-    const onChange = (newBorders) => setBorders(newBorders);
-
     useEffect(() => {
       apiFetch({ path: "/wp/v2/tags?per_page=100" })
         .then((tags) => {
@@ -273,7 +244,6 @@ registerBlockType("wp-podcasts-305786/episodes", {
 
       useFetch
         .then((posts) => {
-          console.log(posts);
           return posts;
         })
         .then((res) => {
@@ -313,26 +283,12 @@ registerBlockType("wp-podcasts-305786/episodes", {
       setAttributes({ amountOfEpisodes: amount });
     };
 
-    //create a function to update all the attributes dynamically
-
-   
     const onChangeToggleThumbnail = (event) => {
       setAttributes({ episodeThumbnailSettings: { hasThumbnail: event } });
     };
-    const onChangeToggleDate = (event) => {
-      setAttributes({ episodeDateSettings: { hasDate: event } });
-    };
-    const onChangeToggleDuration = (event) => {
-      setAttributes({ episodeDurationSettings: { hasDuration: event } });
-    };
-    const onChangeToggleButton = (event) => {
-      setAttributes({ episodeButtonSettings: { hasButton: event } });
-    };
+
     const onChangeToggleDescription = (event) => {
       setAttributes({ episodeDescriptionSettings: { hasDescription: event } });
-    };
-    const onChangeSpliceSubTitle = (event) => {
-      setAttributes({ episodeSubTitleSettings: { spliceSubTitle: event } });
     };
 
     const onChangeToggleSubTitle = (event) => {
@@ -347,9 +303,17 @@ registerBlockType("wp-podcasts-305786/episodes", {
         return (
           <RichText.Content
             tagName='p'
-            value={subTitle[0].slice(0,  episodeSubTitleSettings.subTitleCharacterAmount) + "&nbsp;[..]"}
+            value={
+              subTitle[0].slice(
+                0,
+                episodeSubTitleSettings.subTitleCharacterAmount
+              ) + "&nbsp;[..]"
+            }
             className='wp-podcasts-305786-episode-subtitle'
-            style={{ color: episodeSubTitleSettings.subTitleColor, fontSize: episodeSubTitleSettings.subTitleFontSize }}
+            style={{
+              color: episodeSubTitleSettings.subTitleColor,
+              fontSize: episodeSubTitleSettings.subTitleFontSize,
+            }}
           />
         );
       } else if (episodeSubTitleSettings.hasSubTitle) {
@@ -358,7 +322,10 @@ registerBlockType("wp-podcasts-305786/episodes", {
             tagName='p'
             value={subTitle}
             className='wp-podcasts-305786-episode-subtitle'
-            style={{ color: episodeSubTitleSettings.subTitleColor, fontSize: episodeSubTitleSettings.subTitleFontSize }}
+            style={{
+              color: episodeSubTitleSettings.subTitleColor,
+              fontSize: episodeSubTitleSettings.subTitleFontSize,
+            }}
           />
         );
       }
@@ -388,7 +355,10 @@ registerBlockType("wp-podcasts-305786/episodes", {
       return (
         <p
           className={`${publishDateClass}`}
-          style={{ color: episodeDateSettings.publishDateColor, fontSize: episodeDateSettings.publishDateFontSize }}
+          style={{
+            color: episodeDateSettings.publishDateColor,
+            fontSize: episodeDateSettings.publishDateFontSize,
+          }}
         >
           {calendarIcon}
           Published:&nbsp;
@@ -399,7 +369,12 @@ registerBlockType("wp-podcasts-305786/episodes", {
 
     const showDesciption = (description) => {
       if (!episodeDescriptionSettings.hasDescription) return;
-      return <div dangerouslySetInnerHTML={{ __html: description }}></div>;
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(description, "text/html");
+      console.log(doc.body);
+      return (
+        <div dangerouslySetInnerHTML={{ __html: doc.body.innerText }}></div>
+      );
     };
 
     const showEpisodeDuration = (duration) => {
@@ -411,16 +386,16 @@ registerBlockType("wp-podcasts-305786/episodes", {
       const durationIcon = episodeDurationSettings.hasDurationIcon ? (
         <Dashicon icon='clock' style={{ paddingRight: "5px" }} />
       ) : (
-       
         ""
       );
-
-      console.log(episodeDurationSettings.hasDurationIcon);
 
       return (
         <p
           className={`wp-podcasts-305786-episode-episode-duration-span ${durationClass}`}
-          style={{ color: episodeDurationSettings.durationColor, fontSize: episodeDurationSettings.durationFontSize}}
+          style={{
+            color: episodeDurationSettings.durationColor,
+            fontSize: episodeDurationSettings.durationFontSize,
+          }}
         >
           {durationIcon}
           Duration:&nbsp;
@@ -432,6 +407,7 @@ registerBlockType("wp-podcasts-305786/episodes", {
     const showEpisodeButton = () => {
       if (!episodeButtonSettings.hasButton) return;
 
+      console.log(episodeButtonSettings.borderStyle, "style=-=-=-=-=-=-=-=");
       const buttonIcon = episodeButtonSettings.hasButtonIcon
         ? "wp-podcasts-305786-episode-button-icon"
         : "";
@@ -441,14 +417,17 @@ registerBlockType("wp-podcasts-305786/episodes", {
         : "wp-podcasts-block";
 
       return (
-        <a href='#' className={`${buttonIcon} ${buttonInlineBlock} wp-podcasts-305786-episode-info-btn`}>
+        <a
+          href='#'
+          className={`${buttonIcon} ${buttonInlineBlock} wp-podcasts-305786-episode-info-btn`}
+        >
           <button
             style={{
               fontSize: episodeButtonSettings.buttonFontSize,
               color: episodeButtonSettings.buttonColor,
             }}
           >
-            More info
+            {episodeButtonSettings.buttonText}
           </button>
         </a>
       );
@@ -470,12 +449,29 @@ registerBlockType("wp-podcasts-305786/episodes", {
     };
 
     const showEpisodeAuthor = (author) => {
-      if (!episodeAuthorSettings.hasAuthor || author.length === 0) return;
-      <p className='wp-podcasts-305786-author'>
-        <Dashicon icon='admin-users' />
-        &nbsp;
-        {author}
-      </p>;
+      if (!episodeAuthorSettings.hasAuthor || author.length <= 0) return;
+
+      const authorIcon = episodeAuthorSettings.hasAuthorIcon ? (
+        <Dashicon icon='admin-users' style={{ paddingRight: "5px" }} />
+      ) : (
+        ""
+      );
+      const authorInline = episodeAuthorSettings.displayAuthorInline
+        ? "wp-podcasts-inline"
+        : "wp-podcasts-block";
+
+      return (
+        <p
+          style={{
+            fontSize: episodeAuthorSettings.authorFontSize,
+            color: episodeAuthorSettings.authorColor,
+          }}
+          className={`wp-podcasts-305786-author ${authorInline}`}
+        >
+          {authorIcon}
+          {author}
+        </p>
+      );
     };
 
     const showEpisodeTags = () => {
@@ -488,7 +484,7 @@ registerBlockType("wp-podcasts-305786/episodes", {
     };
 
     const showSubTitleSplice = () => {
-      if (! episodeSubTitleSettings.spliceSubTitle)  return;
+      if (!episodeSubTitleSettings.spliceSubTitle) return;
       return (
         <NumberControl
           step={1}
@@ -572,7 +568,6 @@ registerBlockType("wp-podcasts-305786/episodes", {
                       label={__("Filter By:")}
                       value={sortByCategory}
                       onChange={(filterBy) => {
-                        console.log(filterBy);
                         onChangeFilterByCatergory(filterBy);
                       }}
                       options={showEpisodeTags()}
@@ -601,7 +596,7 @@ registerBlockType("wp-podcasts-305786/episodes", {
                       value={amountOfColumns}
                       min={1}
                       onChange={(amount) => onChangeAmountOfColumns(amount)}
-                      max={12}
+                      max={6}
                     />
                   </label>
                 </PanelRow>
@@ -629,8 +624,14 @@ registerBlockType("wp-podcasts-305786/episodes", {
                           : __("No Title")
                       }
                       checked={episodeTitleSettings.hasTitle}
-                      
-                      onChange={(e) => setAttributes({ episodeTitleSettings: { ...episodeTitleSettings , hasTitle: e }})}
+                      onChange={(e) =>
+                        setAttributes({
+                          episodeTitleSettings: {
+                            ...episodeTitleSettings,
+                            hasTitle: e,
+                          },
+                        })
+                      }
                     />
                   </label>
                 </PanelRow>
@@ -665,6 +666,27 @@ registerBlockType("wp-podcasts-305786/episodes", {
                 <PanelRow>
                   <label className='wp-podcasts-305786-labels'>
                     <ToggleControl
+                      label={__("Toggle Author")}
+                      help={
+                        episodeAuthorSettings.hasAuthor
+                          ? __("Has Author")
+                          : __("No Author")
+                      }
+                      checked={episodeAuthorSettings.hasAuthor}
+                      onChange={(e) =>
+                        setAttributes({
+                          episodeAuthorSettings: {
+                            ...episodeAuthorSettings,
+                            hasAuthor: e,
+                          },
+                        })
+                      }
+                    />
+                  </label>
+                </PanelRow>
+                <PanelRow>
+                  <label className='wp-podcasts-305786-labels'>
+                    <ToggleControl
                       label={__("Toggle Publish Date")}
                       help={
                         episodeDateSettings.hasDate
@@ -672,7 +694,14 @@ registerBlockType("wp-podcasts-305786/episodes", {
                           : __("No Date")
                       }
                       checked={episodeDateSettings.hasDate}
-                      onChange={(e) => setAttributes({ episodeDateSettings: { ...episodeDateSettings, hasDate: e } }) }
+                      onChange={(e) =>
+                        setAttributes({
+                          episodeDateSettings: {
+                            ...episodeDateSettings,
+                            hasDate: e,
+                          },
+                        })
+                      }
                     />
                   </label>
                 </PanelRow>
@@ -681,10 +710,19 @@ registerBlockType("wp-podcasts-305786/episodes", {
                     <ToggleControl
                       label={__("Toggle Duration")}
                       help={
-                       episodeDurationSettings.hasDuration ? __("Has Duration") : __("No Duration")
+                        episodeDurationSettings.hasDuration
+                          ? __("Has Duration")
+                          : __("No Duration")
                       }
                       checked={episodeDurationSettings.hasDuration}
-                      onChange={(e) => setAttributes({ episodeDurationSettings: { ...episodeDurationSettings, hasDuration: e } }) }
+                      onChange={(e) =>
+                        setAttributes({
+                          episodeDurationSettings: {
+                            ...episodeDurationSettings,
+                            hasDuration: e,
+                          },
+                        })
+                      }
                     />
                   </label>
                 </PanelRow>
@@ -692,9 +730,20 @@ registerBlockType("wp-podcasts-305786/episodes", {
                   <label className='wp-podcasts-305786-labels'>
                     <ToggleControl
                       label={__("Toggle Button")}
-                      help={ episodeButtonSettings.hasButton ? __("Has Button") : __("No Button")}
+                      help={
+                        episodeButtonSettings.hasButton
+                          ? __("Has Button")
+                          : __("No Button")
+                      }
                       checked={episodeButtonSettings.hasButton}
-                      onChange={(e) => setAttributes({ episodeButtonSettings: { ...episodeButtonSettings, hasButton: e } })}
+                      onChange={(e) =>
+                        setAttributes({
+                          episodeButtonSettings: {
+                            ...episodeButtonSettings,
+                            hasButton: e,
+                          },
+                        })
+                      }
                     />
                   </label>
                 </PanelRow>
@@ -716,7 +765,14 @@ registerBlockType("wp-podcasts-305786/episodes", {
                     />
                     <ColorPaletteControl
                       value={episodeTitleSettings.titleColor}
-                      onChange={(color) => setAttributes({ episodeTitleSettings: { ...episodeTitleSettings, titleColor: color } })}
+                      onChange={(color) =>
+                        setAttributes({
+                          episodeTitleSettings: {
+                            ...episodeTitleSettings,
+                            titleColor: color,
+                          },
+                        })
+                      }
                     />
                   </label>
                 </PanelRow>
@@ -731,7 +787,12 @@ registerBlockType("wp-podcasts-305786/episodes", {
                       value={episodeTitleSettings.titleFontSize}
                       fallbackFontSize={26}
                       onChange={(newFontSize) =>
-                        setAttributes({ episodeTitleSettings: { ...episodeTitleSettings, titleFontSize: newFontSize }})
+                        setAttributes({
+                          episodeTitleSettings: {
+                            ...episodeTitleSettings,
+                            titleFontSize: newFontSize,
+                          },
+                        })
                       }
                       withSlider
                     />
@@ -757,7 +818,14 @@ registerBlockType("wp-podcasts-305786/episodes", {
                           : __("Splice Subtitle")
                       }
                       checked={episodeSubTitleSettings.spliceSubTitle}
-                      onChange={(e) => {  setAttributes({ episodeSubTitleSettings: { ...episodeSubTitleSettings, spliceSubTitle: e } }) }}
+                      onChange={(e) => {
+                        setAttributes({
+                          episodeSubTitleSettings: {
+                            ...episodeSubTitleSettings,
+                            spliceSubTitle: e,
+                          },
+                        });
+                      }}
                     />
                   </label>
                 </PanelRow>
@@ -767,7 +835,12 @@ registerBlockType("wp-podcasts-305786/episodes", {
                     <ColorPaletteControl
                       value={episodeSubTitleSettings.subTitleColor}
                       onChange={(color) =>
-                        setAttributes({ episodeSubTitleSettings: { ...episodeSubTitleSettings, subTitleColor: color } })
+                        setAttributes({
+                          episodeSubTitleSettings: {
+                            ...episodeSubTitleSettings,
+                            subTitleColor: color,
+                          },
+                        })
                       }
                     />
                   </label>
@@ -780,7 +853,98 @@ registerBlockType("wp-podcasts-305786/episodes", {
                       fallbackFontSize={14}
                       max={36}
                       onChange={(newFontSize) =>
-                        setAttributes({ episodeSubTitleSettings: { ...episodeSubTitleSettings, subTitleFontSize: newFontSize } })
+                        setAttributes({
+                          episodeSubTitleSettings: {
+                            ...episodeSubTitleSettings,
+                            subTitleFontSize: newFontSize,
+                          },
+                        })
+                      }
+                      withSlider
+                    />
+                  </label>
+                </PanelRow>
+              </div>
+            </div>
+          </PanelBody>
+          <PanelBody
+            title={__("Author Settings", "wp-podcasts-305786")}
+            initialOpen={false}
+            icon='users'
+          >
+            <div className='components-base-control'>
+              <div className='components-base-control__field'>
+                <PanelRow>
+                  <label className='components-base-control__label wp-podcasts-305786-labels'>
+                    <ToggleControl
+                      label={__("Toggle Author Icon")}
+                      help={
+                        episodeAuthorSettings.hasAuthorIcon
+                          ? __("Has Author Icon")
+                          : __("No Author Icon")
+                      }
+                      checked={episodeAuthorSettings.hasAuthorIcon}
+                      onChange={(e) =>
+                        setAttributes({
+                          episodeAuthorSettings: {
+                            ...episodeAuthorSettings,
+                            hasAuthorIcon: e,
+                          },
+                        })
+                      }
+                    />
+                  </label>
+                </PanelRow>
+                <PanelRow>
+                  <label className='components-base-control__label wp-podcasts-305786-labels'>
+                    <ToggleControl
+                      label={__("Display Inline")}
+                      help={
+                        episodeAuthorSettings.displayInline
+                          ? __("Display Inline")
+                          : __("Display Block")
+                      }
+                      checked={episodeAuthorSettings.displayInline}
+                      onChange={(e) =>
+                        setAttributes({
+                          episodeAuthorSettings: {
+                            ...episodeAuthorSettings,
+                            displayInline: e,
+                          },
+                        })
+                      }
+                    />
+                  </label>
+                </PanelRow>
+                <PanelRow>
+                  <label className='components-base-control__label wp-podcasts-305786-labels'>
+                    <ColorPaletteControl
+                      value={episodeAuthorSettings.authorColor}
+                      onChange={(color) =>
+                        setAttributes({
+                          episodeAuthorSettings: {
+                            ...episodeAuthorSettings,
+                            authorColor: color,
+                          },
+                        })
+                      }
+                    />
+                  </label>
+                </PanelRow>
+                <PanelRow>
+                  <label className='components-base-control__label wp-podcasts-305786-labels'>
+                    <FontSizePicker
+                      fontSizes={fontSizesBody}
+                      value={episodeAuthorSettings.authorFontSize}
+                      fallbackFontSize={14}
+                      max={36}
+                      onChange={(newFontSize) =>
+                        setAttributes({
+                          episodeAuthorSettings: {
+                            ...episodeAuthorSettings,
+                            authorFontSize: newFontSize,
+                          },
+                        })
                       }
                       withSlider
                     />
@@ -806,7 +970,14 @@ registerBlockType("wp-podcasts-305786/episodes", {
                           : __("No Calendar Icon")
                       }
                       checked={episodeDateSettings.hasCalendarIcon}
-                      onChange={(e) => setAttributes({ episodeDateSettings: { ...episodeDateSettings, hasCalendarIcon: e } })}
+                      onChange={(e) =>
+                        setAttributes({
+                          episodeDateSettings: {
+                            ...episodeDateSettings,
+                            hasCalendarIcon: e,
+                          },
+                        })
+                      }
                     />
                   </label>
                 </PanelRow>
@@ -821,7 +992,12 @@ registerBlockType("wp-podcasts-305786/episodes", {
                       }
                       checked={episodeDateSettings.displayPublishDateInline}
                       onChange={(e) =>
-                        setAttributes({ episodeDateSettings: { ...episodeDateSettings, displayPublishDateInline: e } })
+                        setAttributes({
+                          episodeDateSettings: {
+                            ...episodeDateSettings,
+                            displayPublishDateInline: e,
+                          },
+                        })
                       }
                     />
                   </label>
@@ -835,7 +1011,12 @@ registerBlockType("wp-podcasts-305786/episodes", {
                     <ColorPaletteControl
                       value={episodeDateSettings.publishDateColor}
                       onChange={(color) =>
-                        setAttributes({ episodeDateSettings: { ...episodeDateSettings, publishDateColor: color } })
+                        setAttributes({
+                          episodeDateSettings: {
+                            ...episodeDateSettings,
+                            publishDateColor: color,
+                          },
+                        })
                       }
                     />
                   </label>
@@ -856,7 +1037,12 @@ registerBlockType("wp-podcasts-305786/episodes", {
                       fallbackFontSize={14}
                       max={36}
                       onChange={(newFontSize) =>
-                        setAttributes({ episodeDateSettings: { ...episodeDateSettings, publishDateFontSize: newFontSize } })
+                        setAttributes({
+                          episodeDateSettings: {
+                            ...episodeDateSettings,
+                            publishDateFontSize: newFontSize,
+                          },
+                        })
                       }
                       withSlider
                     />
@@ -876,9 +1062,20 @@ registerBlockType("wp-podcasts-305786/episodes", {
                   <label className='components-base-control__label wp-podcasts-305786-labels'>
                     <ToggleControl
                       label={__("Toggle Duration Icon")}
-                      help={episodeDurationSettings.hasDurationIcon ? __("Has Icon") : __("No Icon")}
-                      checked={episodeDurationSettings.hasDurationIcon }
-                      onChange={(e) => setAttributes({ episodeDurationSettings: { ...episodeDurationSettings, hasDurationIcon: e }})}
+                      help={
+                        episodeDurationSettings.hasDurationIcon
+                          ? __("Has Icon")
+                          : __("No Icon")
+                      }
+                      checked={episodeDurationSettings.hasDurationIcon}
+                      onChange={(e) =>
+                        setAttributes({
+                          episodeDurationSettings: {
+                            ...episodeDurationSettings,
+                            hasDurationIcon: e,
+                          },
+                        })
+                      }
                     />
                   </label>
                 </PanelRow>
@@ -887,13 +1084,18 @@ registerBlockType("wp-podcasts-305786/episodes", {
                     <ToggleControl
                       label={__("Display Inline")}
                       help={
-                        displayDurationInline
+                        episodeDurationSettings.displayDurationInline
                           ? __("Display Inline")
                           : __("Display Block")
                       }
-                      checked={displayDurationInline}
+                      checked={episodeDurationSettings.displayDurationInline}
                       onChange={(e) =>
-                        setAttributes({ displayDurationInline: e })
+                        setAttributes({
+                          episodeDurationSettings: {
+                            ...episodeDurationSettings,
+                            displayDurationInline: e,
+                          },
+                        })
                       }
                     />
                   </label>
@@ -901,9 +1103,14 @@ registerBlockType("wp-podcasts-305786/episodes", {
                 <PanelRow>
                   <label className='components-base-control__label wp-podcasts-305786-labels'>
                     <ColorPaletteControl
-                      value={durationColor}
+                      value={episodeDurationSettings.durationColor}
                       onChange={(color) =>
-                        setAttributes({ durationColor: color })
+                        setAttributes({
+                          episodeDurationSettings: {
+                            ...episodeDurationSettings,
+                            durationColor: color,
+                          },
+                        })
                       }
                     />
                   </label>
@@ -912,11 +1119,16 @@ registerBlockType("wp-podcasts-305786/episodes", {
                   <label className='components-base-control__label wp-podcasts-305786-labels'>
                     <FontSizePicker
                       fontSizes={fontSizesBody}
-                      value={durationFontSize}
+                      value={episodeDurationSettings.durationFontSize}
                       fallbackFontSize={14}
                       max={36}
                       onChange={(newFontSize) =>
-                        setAttributes({ durationFontSize: newFontSize })
+                        setAttributes({
+                          episodeDurationSettings: {
+                            ...episodeDurationSettings,
+                            durationFontSize: newFontSize,
+                          },
+                        })
                       }
                       withSlider
                     />
@@ -935,9 +1147,20 @@ registerBlockType("wp-podcasts-305786/episodes", {
                   <label className='components-base-control__label wp-podcasts-305786-labels'>
                     <ToggleControl
                       label={__("Toggle Button Icon")}
-                      help={episodeButtonSettings.hasButtonIcon ? __("Has Icon") : __("No Icon")}
+                      help={
+                        episodeButtonSettings.hasButtonIcon
+                          ? __("Has Icon")
+                          : __("No Icon")
+                      }
                       checked={episodeButtonSettings.hasButtonIcon}
-                      onChange={(e) => setAttributes({ episodeButtonSettings: { ...episodeButtonSettings, hasButtonIcon: e } })}
+                      onChange={(e) =>
+                        setAttributes({
+                          episodeButtonSettings: {
+                            ...episodeButtonSettings,
+                            hasButtonIcon: e,
+                          },
+                        })
+                      }
                     />
                   </label>
                 </PanelRow>
@@ -953,7 +1176,12 @@ registerBlockType("wp-podcasts-305786/episodes", {
                       }
                       checked={episodeButtonSettings.displayButtonInline}
                       onChange={(e) =>
-                        setAttributes({ episodeButtonSettings: { ...episodeButtonSettings, displayButtonInline: e } })
+                        setAttributes({
+                          episodeButtonSettings: {
+                            ...episodeButtonSettings,
+                            displayButtonInline: e,
+                          },
+                        })
                       }
                     />
                   </label>
@@ -961,11 +1189,10 @@ registerBlockType("wp-podcasts-305786/episodes", {
 
                 <PanelRow>
                   <label className='components-base-control__label wp-podcasts-305786-labels'>
-                    <BorderBoxControl
-                      colors={colors}
-                      label={__("Borders")}
-                      onChange={onChange}
-                      value={borders}
+                  <InputControl
+                      label='Button Text'
+                      value={episodeButtonSettings.buttonText}
+                      onChange={(nextValue) => { if(nextValue.split("") <= 0) nextValue = __("More Info"); setAttributes({ episodeButtonSettings: { ...episodeButtonSettings, buttonText: nextValue } }) }}
                     />
                   </label>
                 </PanelRow>
@@ -979,7 +1206,12 @@ registerBlockType("wp-podcasts-305786/episodes", {
                     <ColorPaletteControl
                       value={episodeButtonSettings.buttonColor}
                       onChange={(color) =>
-                        setAttributes({ episodeButtonSettings: { ...episodeButtonSettings, buttonColor: color } })
+                        setAttributes({
+                          episodeButtonSettings: {
+                            ...episodeButtonSettings,
+                            buttonColor: color,
+                          },
+                        })
                       }
                     />
                   </label>
@@ -992,11 +1224,16 @@ registerBlockType("wp-podcasts-305786/episodes", {
                     />
                     <FontSizePicker
                       fontSizes={fontSizesBody}
-                      value={episodeButtonSettings.buttonFontSize }
+                      value={episodeButtonSettings.buttonFontSize}
                       fallbackFontSize={14}
                       max={36}
                       onChange={(newFontSize) =>
-                        setAttributes({ episodeButtonSettings: { ...episodeButtonSettings, buttonFontSize: newFontSize } })
+                        setAttributes({
+                          episodeButtonSettings: {
+                            ...episodeButtonSettings,
+                            buttonFontSize: newFontSize,
+                          },
+                        })
                       }
                       withSlider
                     />

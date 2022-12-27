@@ -55,7 +55,7 @@
   font-size: 80%;
 }
 
-.wp-podcasts-305786-episodes-wrapper {
+.wp-podcasts-305786-episodes .is-style-split, .wp-podcasts-305786-episodes .is-style-split-card {
   display: -ms-grid;
   display: grid;
 }
