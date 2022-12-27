@@ -1189,10 +1189,19 @@ registerBlockType("wp-podcasts-305786/episodes", {
 
                 <PanelRow>
                   <label className='components-base-control__label wp-podcasts-305786-labels'>
-                  <InputControl
+                    <InputControl
                       label='Button Text'
                       value={episodeButtonSettings.buttonText}
-                      onChange={(nextValue) => { if(nextValue.split("") <= 0) nextValue = __("More Info"); setAttributes({ episodeButtonSettings: { ...episodeButtonSettings, buttonText: nextValue } }) }}
+                      onChange={(nextValue) => {
+                        if (nextValue.split("") <= 0)
+                          nextValue = __("More Info");
+                        setAttributes({
+                          episodeButtonSettings: {
+                            ...episodeButtonSettings,
+                            buttonText: nextValue,
+                          },
+                        });
+                      }}
                     />
                   </label>
                 </PanelRow>
