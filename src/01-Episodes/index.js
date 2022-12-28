@@ -42,13 +42,14 @@ registerBlockType("wp-podcasts-305786/episodes", {
     episodeSettings: {
       type: "object",
       default: {
-        sort: "newest",
-        order: "asc",
+        sort: "asc",
         category: "all",
         amount: 1,
         columns: 1,
         totalPages: 1,
         totalEpisodes: 1,
+        currentPage: 1,
+        hasPagination: false,
         classStyle: "wp-podcasts-305786-flex wp-podcasts-305786-col-1",
       },
     },
@@ -86,7 +87,6 @@ registerBlockType("wp-podcasts-305786/episodes", {
         descriptionFontSize: 14,
         spliceDescription: false,
         descriptionCharacterAmount: 500,
-
       },
     },
     episodeAuthorSettings: {
@@ -178,7 +178,6 @@ registerBlockType("wp-podcasts-305786/episodes", {
     // Pulling Set Attributes and Block Attributes from props
     const {
       attributes: {
-        sortEpisodes,
         sortByCategory,
         amountOfEpisodes,
         amountOfColumns,
@@ -192,7 +191,7 @@ registerBlockType("wp-podcasts-305786/episodes", {
         episodeDurationSettings,
         episodeButtonSettings,
         episodeButtonBorderSettings,
-        episodeSettings
+        episodeSettings,
       },
       className,
       setAttributes,
@@ -246,12 +245,10 @@ registerBlockType("wp-podcasts-305786/episodes", {
     const [allEpisodes, setAllEpisodes] = useState([]);
     const [episodeTags, setEpisodeTags] = useState([]);
 
-
     useEffect(() => {
       apiFetch({ path: "/wp/v2/tags?per_page=100" })
         .then((tags) => {
           return tags;
-          
         })
         .then((res) => {
           setEpisodeTags(res);
@@ -262,140 +259,94 @@ registerBlockType("wp-podcasts-305786/episodes", {
           }
         });
 
-        apiFetch({ path: "/wp/v2/wp-podcasts-305786/?per_page=25&page=1", parse: false })
+        const episodeQueryPages =
+        episodeSettings.sort === "newest"
+          ? apiFetch({
+              path: `/wp/v2/wp-podcasts-305786?per_page=${episodeSettings.amount}&page=${episodeSettings.currentPage}&filter[orderby]&order=${episodeSettings.order}`,
+              parse: false,
+            })
+          : apiFetch({
+              path: `/wp/v2/wp-podcasts-305786?per_page=${episodeSettings.amount}&page=${episodeSettings.totalPages}&filter[orderby]&order=${episodeSettings.order}`,
+              parse: false,
+            });
+
+      episodeQueryPages
         .then((posts) => {
           return posts;
         })
         .then((res) => {
-          console.log(res.headers.get('X-WP-TotalPages') ,'yellow')
-          setAttributes({ episodeSettings: { ...episodeSettings, totalPages: res.headers.get('X-WP-TotalPages'), totalEpisodes: res.headers.get('X-WP-Total')  }});
-        } )
-       
+          setAttributes({
+            episodeSettings: {
+              ...episodeSettings,
+              totalPages: res.headers.get("X-WP-TotalPages"),
+              totalEpisodes: res.headers.get("X-WP-Total"),
+            },
+          });
+        })
+
         .catch((error) => {
           if (error.name === "AbortError") {
             console.log("Request has been aborted");
           }
-        } );
-
-
+        });
     }, []);
 
-  
-
-
-    // useEffect(() => {
-    //   const useFetch =
-    //     sortByCategory != "all"
-    //       ? apiFetch({
-    //           path: `/wp/v2/wp-podcasts-305786?per_page=100&tags=${Number(
-    //             sortByCategory
-    //           )}`,
-    //       })
-    //       : apiFetch({ path: "/wp/v2/wp-podcasts-305786?per_page=25" });
-
-    //   useFetch
-    //     .then((posts) => {
-
-    //       return posts;
-
-    //     })
-    //     .then((res) => {
-
-    //       let filteredEpisodes = [...res];
-    //       console.log(sortEpisodes, 'sortEpisodes')
-
-    //       if (sortEpisodes === "asc") {
-    //         filteredEpisodes = [...res].sort((a, b) => {
-      
-    //           return a.id - b.id;
-    //         });
-    //       } else if (sortEpisodes === "desc") {
-    //         filteredEpisodes = [...res].sort((a, b) => {
-    //           return b.id- a.id;
-    //         });
-
-    //       } 
-
-    //       console.log(filteredEpisodes, sortEpisodes)
-         
-    //       filteredEpisodes = [...filteredEpisodes].filter((episode, i) =>
-    //         i + 1 <= amountOfEpisodes ? episode : null
-    //       );
-
-    //       setEpisodes(filteredEpisodes);
-    //       setAllEpisodes(res);
-    //     })
-    //     .catch((error) => {
-    //       if (error.name === "AbortError") {
-    //         console.log("Request has been aborted");
-    //       }
-    //     });
-    // }, [sortByCategory, amountOfEpisodes, sortEpisodes]);
-
-
     useEffect(() => {
-      console.log(episodeSettings.totalPages, episodeSettings.amount, 'episodeSettings')
-      const episodeQuery = episodeSettings.sort === "newest" ?  apiFetch({ path: `/wp/v2/wp-podcasts-305786?per_page=25`}) : apiFetch({ path: `/wp/v2/wp-podcasts-305786?per_page=25&page=${episodeSettings.totalPages}`});
-      let fetchedEpisodes = [];
-      episodeQuery.then((posts) => {
-        console.log(posts)
-        return posts;
-      }
-      )
-      .then((res) => {
+      const episodeQuery =
+        episodeSettings.sort === "newest"
+          ? apiFetch({
+              path: `/wp/v2/wp-podcasts-305786?per_page=${episodeSettings.amount}&page=${episodeSettings.currentPage}&filter[orderby]&order=${episodeSettings.order}`,
+            })
+          : apiFetch({
+              path: `/wp/v2/wp-podcasts-305786?per_page=${episodeSettings.amount}&page=${episodeSettings.totalPages}&filter[orderby]&order=${episodeSettings.order}`,
+            });
 
-        if (episodeSettings.order === "asc") {
-          fetchedEpisodes = [...res].sort((a, b) => {
-            return a.id - b.id;
-          });
-        }
-        else if (episodeSettings.order === "desc") {
-          fetchedEpisodes = [...res].sort((a, b) => {
-            return b.id - a.id;
-          });
-        }
+      episodeQuery
+        .then((posts) => {
+          return posts;
+        })
+        .then((res) => {
+          setEpisodes(res);
+        })
+        .catch((error) => {
+          if (error.name === "AbortError") {
+            console.log("Request has been aborted");
+          }
+        });
 
-        fetchedEpisodes = [...fetchedEpisodes].filter((episode, i) =>
-          i + 1 <= episodeSettings.amount ? episode : null
-        );
-
-        
-        setEpisodes( fetchedEpisodes );
-        setAllEpisodes(res);
-        console.log(res, 'fetchedEpisodes ' , episodeSettings.sort, episodeSettings.order)
-      }
-      )
-      .catch((error) => {
-        if (error.name === "AbortError") {
-          console.log("Request has been aborted");
-        }
-      }
-      );
-
-
-
-
+    
     }, [episodeSettings]);
 
     const onChangeFilterByCatergory = (category) => {
       setAttributes({ sortByCategory: category });
-      setAttributes({ episodeSettings: { ...episodeSettings , category: category } });
+      setAttributes({
+        episodeSettings: { ...episodeSettings, category: category },
+      });
     };
 
-
     const onChangeAmountOfColumns = (amount) => {
-      if (amount > episodes.length || amount >= episodeSettings.totalEpisodes) return;
+      if (amount > episodes.length || amount >= episodeSettings.totalEpisodes)
+        return;
       setAttributes({
         amountOfColumns: amount,
         gridClasses: "wp-podcasts-305786-flex wp-podcasts-305786-col-" + amount,
       });
-      setAttributes({ episodeSettings: { ...episodeSettings , columns: amount, classStyle: "wp-podcasts-305786-flex wp-podcasts-305786-col-" + amount  } });
+      setAttributes({
+        episodeSettings: {
+          ...episodeSettings,
+          columns: amount,
+          classStyle:
+            "wp-podcasts-305786-flex wp-podcasts-305786-col-" + amount,
+        },
+      });
     };
 
     const onChangeAmountOfEpisodes = (amount) => {
       if (amount > 25 || amount >= episodeSettings.totalEpisodes) return;
       setAttributes({ amountOfEpisodes: amount });
-      setAttributes({ episodeSettings: { ...episodeSettings , amount: amount } });
+      setAttributes({
+        episodeSettings: { ...episodeSettings, amount: amount },
+      });
     };
 
     const onChangeToggleThumbnail = (event) => {
@@ -486,10 +437,21 @@ registerBlockType("wp-podcasts-305786/episodes", {
       if (!episodeDescriptionSettings.hasDescription) return;
       const parser = new DOMParser();
       const doc = parser.parseFromString(description, "text/html");
-      const descriptionText = episodeDescriptionSettings.spliceDescription ? ( doc.body.innerText.slice(0, episodeDescriptionSettings.descriptionCharacterAmount) + "&nbsp;[..]") : doc.body.innerText;
-    
+      const descriptionText = episodeDescriptionSettings.spliceDescription
+        ? doc.body.innerText.slice(
+            0,
+            episodeDescriptionSettings.descriptionCharacterAmount
+          ) + "&nbsp;[..]"
+        : doc.body.innerText;
+
       return (
-        <div style={{ fontSize: episodeDescriptionSettings.descriptionFontSize, color: episodeDescriptionSettings.descriptionColor }} dangerouslySetInnerHTML={{ __html: descriptionText }}></div>
+        <div
+          style={{
+            fontSize: episodeDescriptionSettings.descriptionFontSize,
+            color: episodeDescriptionSettings.descriptionColor,
+          }}
+          dangerouslySetInnerHTML={{ __html: descriptionText }}
+        ></div>
       );
     };
 
@@ -593,7 +555,7 @@ registerBlockType("wp-podcasts-305786/episodes", {
       );
     };
 
-    const showEpisodeTags = () =>  {
+    const showEpisodeTags = () => {
       if (!episodeTags) return;
       return episodeTags.map((tag, i) =>
         i != 0
@@ -638,6 +600,42 @@ registerBlockType("wp-podcasts-305786/episodes", {
       );
     };
 
+    const showPagination = () => {
+      if (episodeSettings.totalPages <= 1 || !episodeSettings.hasPagination) return;
+
+      let paginationButtons = [];
+      let i = 1;
+
+      while (episodeSettings.totalPages >= i) {
+        paginationButtons.push(
+          <button
+            value={i}
+            className={`wp-podcasts-305786-pagination-button`}
+            onClick={(e) => {
+              setAttributes({
+                episodeSettings: {
+                  ...episodeSettings,
+                  currentPage: e.target.value,
+                },
+              });
+            }}
+          >
+            {i}
+          </button>
+        );
+        i++;
+      }
+
+      let episodePagination = (
+        <div className='wp-podcasts-305786-pagination-wrapper'>
+          {paginationButtons}
+        </div>
+      );
+    
+
+      return episodePagination;
+    };
+
     const showEpisodes = () => {
       if (episodes.length <= 0) return;
 
@@ -675,8 +673,7 @@ registerBlockType("wp-podcasts-305786/episodes", {
             <ToolbarButton
               icon='edit'
               title={__("Edit Podcast", "wp-podcasts-305786")}
-              onClick={() => {
-              }}
+              onClick={() => {}}
             />
             <ToolbarButton icon='trash' title='Delete Podcast' />
             <ToolbarButton icon='plus' title='Add Podcast' />
@@ -697,32 +694,18 @@ registerBlockType("wp-podcasts-305786/episodes", {
           >
             <div className='components-base-control'>
               <div className='components-base-control__field'>
-              <PanelRow>
-                  <label className='components-base-control__label wp-podcasts-305786-labels'>
-                    <SelectControl
-                      label={__("Fetch By:")}
-                      value={episodeSettings.sort}
-                      onChange={(sortBy) => {
-                        setAttributes({ episodeSettings: { ...episodeSettings, sort: sortBy } });
-                      }}
-                      options={[
-                        {
-                          label: __("Fetch by", "wp-podcasts-305786"),
-                          disabled: true,
-                        },
-                        { value: "newest", label: "Newest" },
-                        { value: "oldest", label: "Oldests" },
-                      ]}
-                    />
-                  </label>
-                </PanelRow>
                 <PanelRow>
                   <label className='components-base-control__label wp-podcasts-305786-labels'>
                     <SelectControl
                       label={__("Sort By:")}
                       value={episodeSettings.order}
                       onChange={(sortBy) => {
-                        setAttributes({ episodeSettings: { ...episodeSettings, order: sortBy } });
+                        setAttributes({
+                          episodeSettings: {
+                            ...episodeSettings,
+                            order: sortBy,
+                          },
+                        });
                       }}
                       options={[
                         {
@@ -770,6 +753,20 @@ registerBlockType("wp-podcasts-305786/episodes", {
                       min={1}
                       onChange={(amount) => onChangeAmountOfColumns(amount)}
                       max={6}
+                    />
+                  </label>
+                </PanelRow>
+                <PanelRow>
+                  <label className='wp-podcasts-305786-labels'>
+                    <ToggleControl
+                      label={__("Toggle Pagination")}
+                      help={
+                        episodeSettings.hasPagination
+                          ? __("Has Pagination")
+                          : __("No  Pagination")
+                      }
+                      checked={episodeSettings.hasPagination}
+                      onChange={(e) => setAttributes({episodeSettings: { ...episodeSettings, hasPagination: e } })}
                     />
                   </label>
                 </PanelRow>
@@ -996,7 +993,6 @@ registerBlockType("wp-podcasts-305786/episodes", {
                         })
                       }
                     />
-
                   </label>
                 </PanelRow>
                 {showDescriptionSplice()}
@@ -1501,6 +1497,7 @@ registerBlockType("wp-podcasts-305786/episodes", {
         className={`wp-podcasts-305786-block wp-podcasts-305786-episodes ${gridClasses}`}
       >
         {showEpisodes()}
+        {showPagination()}
       </section>,
     ];
   },
