@@ -3,6 +3,7 @@ import {
   InspectorControls,
   RichText,
   ColorPaletteControl,
+  AlignmentToolbar,
 } from "@wordpress/block-editor";
 import {
   __experimentalInputControl as InputControl,
@@ -17,9 +18,19 @@ import {
   Dashicon,
   __experimentalNumberControl as NumberControl,
   FontSizePicker,
+  Toolbar,
+  ToolbarButton,
+  ToolbarGroup,
+  ToolbarItem,
 } from "@wordpress/components";
 import { registerBlockType } from "@wordpress/blocks";
-import { InnerBlocks, useBlockProps } from "@wordpress/block-editor";
+import {
+  InnerBlocks,
+  useBlockProps,
+  BlockControls,
+  __experimentalBlockAlignmentMatrixToolbar as BlockAlignmentMatrixToolbar,
+  BlockAlignmentToolbar,
+} from "@wordpress/block-editor";
 import apiFetch from "@wordpress/api-fetch";
 import { useEffect, useState } from "@wordpress/element";
 
@@ -28,6 +39,19 @@ registerBlockType("wp-podcasts-305786/episodes", {
   icon: "format-video",
   category: "wp_podcasts_305786_blocks",
   attributes: {
+    episodeSettings: {
+      type: "object",
+      default: {
+        sort: "newest",
+        order: "asc",
+        category: "all",
+        amount: 1,
+        columns: 1,
+        totalPages: 1,
+        totalEpisodes: 1,
+        classStyle: "wp-podcasts-305786-flex wp-podcasts-305786-col-1",
+      },
+    },
     sortEpisodes: {
       type: "string",
       default: "asc",
@@ -58,6 +82,11 @@ registerBlockType("wp-podcasts-305786/episodes", {
       type: "object",
       default: {
         hasDescription: false,
+        descriptionColor: "#000000",
+        descriptionFontSize: 14,
+        spliceDescription: false,
+        descriptionCharacterAmount: 500,
+
       },
     },
     episodeAuthorSettings: {
@@ -163,6 +192,7 @@ registerBlockType("wp-podcasts-305786/episodes", {
         episodeDurationSettings,
         episodeButtonSettings,
         episodeButtonBorderSettings,
+        episodeSettings
       },
       className,
       setAttributes,
@@ -216,10 +246,12 @@ registerBlockType("wp-podcasts-305786/episodes", {
     const [allEpisodes, setAllEpisodes] = useState([]);
     const [episodeTags, setEpisodeTags] = useState([]);
 
+
     useEffect(() => {
       apiFetch({ path: "/wp/v2/tags?per_page=100" })
         .then((tags) => {
           return tags;
+          
         })
         .then((res) => {
           setEpisodeTags(res);
@@ -229,58 +261,141 @@ registerBlockType("wp-podcasts-305786/episodes", {
             console.log("Request has been aborted");
           }
         });
-    }, []);
 
-    //When attributes sorty by category and amount of episodes are changes update episodes
-    useEffect(() => {
-      const useFetch =
-        sortByCategory != "all"
-          ? apiFetch({
-              path: `/wp/v2/wp-podcasts-305786?per_page=100&tags=${Number(
-                sortByCategory
-              )}`,
-            })
-          : apiFetch({ path: "/wp/v2/wp-podcasts-305786?per_page=25" });
-
-      useFetch
+        apiFetch({ path: "/wp/v2/wp-podcasts-305786/?per_page=25&page=1", parse: false })
         .then((posts) => {
           return posts;
         })
         .then((res) => {
-          //varialbe to hold the amount of episodes to show
-          const filteredEpisodes = [...res].filter((episode, i) =>
-            i + 1 <= amountOfEpisodes ? episode : null
-          );
-
-          setEpisodes(filteredEpisodes);
-          setAllEpisodes(res);
-        })
+          console.log(res.headers.get('X-WP-TotalPages') ,'yellow')
+          setAttributes({ episodeSettings: { ...episodeSettings, totalPages: res.headers.get('X-WP-TotalPages'), totalEpisodes: res.headers.get('X-WP-Total')  }});
+        } )
+       
         .catch((error) => {
           if (error.name === "AbortError") {
             console.log("Request has been aborted");
           }
-        });
-    }, [sortByCategory, amountOfEpisodes]);
+        } );
+
+
+    }, []);
+
+  
+
+
+    // useEffect(() => {
+    //   const useFetch =
+    //     sortByCategory != "all"
+    //       ? apiFetch({
+    //           path: `/wp/v2/wp-podcasts-305786?per_page=100&tags=${Number(
+    //             sortByCategory
+    //           )}`,
+    //       })
+    //       : apiFetch({ path: "/wp/v2/wp-podcasts-305786?per_page=25" });
+
+    //   useFetch
+    //     .then((posts) => {
+
+    //       return posts;
+
+    //     })
+    //     .then((res) => {
+
+    //       let filteredEpisodes = [...res];
+    //       console.log(sortEpisodes, 'sortEpisodes')
+
+    //       if (sortEpisodes === "asc") {
+    //         filteredEpisodes = [...res].sort((a, b) => {
+      
+    //           return a.id - b.id;
+    //         });
+    //       } else if (sortEpisodes === "desc") {
+    //         filteredEpisodes = [...res].sort((a, b) => {
+    //           return b.id- a.id;
+    //         });
+
+    //       } 
+
+    //       console.log(filteredEpisodes, sortEpisodes)
+         
+    //       filteredEpisodes = [...filteredEpisodes].filter((episode, i) =>
+    //         i + 1 <= amountOfEpisodes ? episode : null
+    //       );
+
+    //       setEpisodes(filteredEpisodes);
+    //       setAllEpisodes(res);
+    //     })
+    //     .catch((error) => {
+    //       if (error.name === "AbortError") {
+    //         console.log("Request has been aborted");
+    //       }
+    //     });
+    // }, [sortByCategory, amountOfEpisodes, sortEpisodes]);
+
+
+    useEffect(() => {
+      console.log(episodeSettings.totalPages, episodeSettings.amount, 'episodeSettings')
+      const episodeQuery = episodeSettings.sort === "newest" ?  apiFetch({ path: `/wp/v2/wp-podcasts-305786?per_page=25`}) : apiFetch({ path: `/wp/v2/wp-podcasts-305786?per_page=25&page=${episodeSettings.totalPages}`});
+      let fetchedEpisodes = [];
+      episodeQuery.then((posts) => {
+        console.log(posts)
+        return posts;
+      }
+      )
+      .then((res) => {
+
+        if (episodeSettings.order === "asc") {
+          fetchedEpisodes = [...res].sort((a, b) => {
+            return a.id - b.id;
+          });
+        }
+        else if (episodeSettings.order === "desc") {
+          fetchedEpisodes = [...res].sort((a, b) => {
+            return b.id - a.id;
+          });
+        }
+
+        fetchedEpisodes = [...fetchedEpisodes].filter((episode, i) =>
+          i + 1 <= episodeSettings.amount ? episode : null
+        );
+
+        
+        setEpisodes( fetchedEpisodes );
+        setAllEpisodes(res);
+        console.log(res, 'fetchedEpisodes ' , episodeSettings.sort, episodeSettings.order)
+      }
+      )
+      .catch((error) => {
+        if (error.name === "AbortError") {
+          console.log("Request has been aborted");
+        }
+      }
+      );
+
+
+
+
+    }, [episodeSettings]);
 
     const onChangeFilterByCatergory = (category) => {
       setAttributes({ sortByCategory: category });
+      setAttributes({ episodeSettings: { ...episodeSettings , category: category } });
     };
 
-    const onChangeSortEpisodes = (sortBy) => {
-      setAttributes({ sortEpisodes: sortBy });
-    };
 
     const onChangeAmountOfColumns = (amount) => {
-      if (amount > episodes.length) return;
+      if (amount > episodes.length || amount >= episodeSettings.totalEpisodes) return;
       setAttributes({
         amountOfColumns: amount,
         gridClasses: "wp-podcasts-305786-flex wp-podcasts-305786-col-" + amount,
       });
+      setAttributes({ episodeSettings: { ...episodeSettings , columns: amount, classStyle: "wp-podcasts-305786-flex wp-podcasts-305786-col-" + amount  } });
     };
 
     const onChangeAmountOfEpisodes = (amount) => {
-      if (amount > allEpisodes.length) return;
+      if (amount > 25 || amount >= episodeSettings.totalEpisodes) return;
       setAttributes({ amountOfEpisodes: amount });
+      setAttributes({ episodeSettings: { ...episodeSettings , amount: amount } });
     };
 
     const onChangeToggleThumbnail = (event) => {
@@ -367,13 +482,14 @@ registerBlockType("wp-podcasts-305786/episodes", {
       );
     };
 
-    const showDesciption = (description) => {
+    const showEpisodeDesciption = (description) => {
       if (!episodeDescriptionSettings.hasDescription) return;
       const parser = new DOMParser();
       const doc = parser.parseFromString(description, "text/html");
-      console.log(doc.body);
+      const descriptionText = episodeDescriptionSettings.spliceDescription ? ( doc.body.innerText.slice(0, episodeDescriptionSettings.descriptionCharacterAmount) + "&nbsp;[..]") : doc.body.innerText;
+    
       return (
-        <div dangerouslySetInnerHTML={{ __html: doc.body.innerText }}></div>
+        <div style={{ fontSize: episodeDescriptionSettings.descriptionFontSize, color: episodeDescriptionSettings.descriptionColor }} dangerouslySetInnerHTML={{ __html: descriptionText }}></div>
       );
     };
 
@@ -407,7 +523,6 @@ registerBlockType("wp-podcasts-305786/episodes", {
     const showEpisodeButton = () => {
       if (!episodeButtonSettings.hasButton) return;
 
-      console.log(episodeButtonSettings.borderStyle, "style=-=-=-=-=-=-=-=");
       const buttonIcon = episodeButtonSettings.hasButtonIcon
         ? "wp-podcasts-305786-episode-button-icon"
         : "";
@@ -421,14 +536,16 @@ registerBlockType("wp-podcasts-305786/episodes", {
           href='#'
           className={`${buttonIcon} ${buttonInlineBlock} wp-podcasts-305786-episode-info-btn`}
         >
-          <button
+          <RichText.Content
+            tagName='button'
+            value={episodeButtonSettings.buttonText}
+            onClick={showBlockControls()}
+            className={`wp-podcasts-305786-episode-button`}
             style={{
               fontSize: episodeButtonSettings.buttonFontSize,
               color: episodeButtonSettings.buttonColor,
             }}
-          >
-            {episodeButtonSettings.buttonText}
-          </button>
+          />
         </a>
       );
     };
@@ -436,15 +553,17 @@ registerBlockType("wp-podcasts-305786/episodes", {
     const showEpisodeTitle = (topicTitle) => {
       if (!episodeTitleSettings.hasTitle) return;
       return (
-        <RichText.Content
-          tagName='h1'
-          value={topicTitle}
-          className='wp-podcasts-305786-episode-title'
-          style={{
-            color: episodeTitleSettings.titleColor,
-            fontSize: episodeTitleSettings.titleFontSize,
-          }}
-        />
+        <div>
+          <RichText.Content
+            tagName='h1'
+            value={topicTitle}
+            className='wp-podcasts-305786-episode-title'
+            style={{
+              color: episodeTitleSettings.titleColor,
+              fontSize: episodeTitleSettings.titleFontSize,
+            }}
+          />
+        </div>
       );
     };
 
@@ -474,12 +593,30 @@ registerBlockType("wp-podcasts-305786/episodes", {
       );
     };
 
-    const showEpisodeTags = () => {
+    const showEpisodeTags = () =>  {
       if (!episodeTags) return;
       return episodeTags.map((tag, i) =>
         i != 0
           ? { value: tag.id, label: camelize(tag.name) }
           : { value: "all", label: "All Categories" }
+      );
+    };
+
+    const showDescriptionSplice = () => {
+      if (!episodeDescriptionSettings.spliceDescription) return;
+      return (
+        <NumberControl
+          step={1}
+          onChange={(amount) => {
+            setAttributes({
+              episodeDescriptionSettings: {
+                ...episodeDescriptionSettings,
+                descriptionCharacterAmount: amount,
+              },
+            });
+          }}
+          value={episodeDescriptionSettings.descriptionCharacterAmount}
+        />
       );
     };
 
@@ -518,7 +655,7 @@ registerBlockType("wp-podcasts-305786/episodes", {
               {showEpisodeDuration(
                 topic.podcast_data.wp_podcasts_305786_duration
               )}
-              {showDesciption(
+              {showEpisodeDesciption(
                 topic.podcast_data.wp_podcasts_305786_description
               )}
               {showSubTitle(topic.podcast_data.wp_podcasts_305786_subtitle)}
@@ -529,6 +666,23 @@ registerBlockType("wp-podcasts-305786/episodes", {
       });
 
       return displayEpisodes;
+    };
+
+    const showBlockControls = () => {
+      return (
+        <BlockControls>
+          <Toolbar>
+            <ToolbarButton
+              icon='edit'
+              title={__("Edit Podcast", "wp-podcasts-305786")}
+              onClick={() => {
+              }}
+            />
+            <ToolbarButton icon='trash' title='Delete Podcast' />
+            <ToolbarButton icon='plus' title='Add Podcast' />
+          </Toolbar>
+        </BlockControls>
+      );
     };
 
     return [
@@ -543,13 +697,32 @@ registerBlockType("wp-podcasts-305786/episodes", {
           >
             <div className='components-base-control'>
               <div className='components-base-control__field'>
+              <PanelRow>
+                  <label className='components-base-control__label wp-podcasts-305786-labels'>
+                    <SelectControl
+                      label={__("Fetch By:")}
+                      value={episodeSettings.sort}
+                      onChange={(sortBy) => {
+                        setAttributes({ episodeSettings: { ...episodeSettings, sort: sortBy } });
+                      }}
+                      options={[
+                        {
+                          label: __("Fetch by", "wp-podcasts-305786"),
+                          disabled: true,
+                        },
+                        { value: "newest", label: "Newest" },
+                        { value: "oldest", label: "Oldests" },
+                      ]}
+                    />
+                  </label>
+                </PanelRow>
                 <PanelRow>
                   <label className='components-base-control__label wp-podcasts-305786-labels'>
                     <SelectControl
                       label={__("Sort By:")}
-                      value={sortEpisodes}
+                      value={episodeSettings.order}
                       onChange={(sortBy) => {
-                        onChangeSortEpisodes(sortBy);
+                        setAttributes({ episodeSettings: { ...episodeSettings, order: sortBy } });
                       }}
                       options={[
                         {
@@ -583,7 +756,7 @@ registerBlockType("wp-podcasts-305786/episodes", {
                       )}
                       value={amountOfEpisodes}
                       min={1}
-                      max={allEpisodes.length}
+                      max={25}
                       onChange={(amount) => onChangeAmountOfEpisodes(amount)}
                     />
                   </label>
@@ -791,6 +964,76 @@ registerBlockType("wp-podcasts-305786/episodes", {
                           episodeTitleSettings: {
                             ...episodeTitleSettings,
                             titleFontSize: newFontSize,
+                          },
+                        })
+                      }
+                      withSlider
+                    />
+                  </label>
+                </PanelRow>
+              </div>
+            </div>
+          </PanelBody>
+          <PanelBody title={__("Description Settings")} initialOpen={false}>
+            <div className='components-base-control'>
+              <div className='components-base-control__field'>
+                <PanelRow>
+                  <label className='components-base-control__label wp-podcasts-305786-labels'>
+                    <ToggleControl
+                      label={__("Splice Description")}
+                      help={
+                        episodeDescriptionSettings.spliceDescription
+                          ? __("Has Splice")
+                          : __("No Splice")
+                      }
+                      checked={episodeDescriptionSettings.spliceDescription}
+                      onChange={(e) =>
+                        setAttributes({
+                          episodeDescriptionSettings: {
+                            ...episodeDescriptionSettings,
+                            spliceDescription: e,
+                          },
+                        })
+                      }
+                    />
+
+                  </label>
+                </PanelRow>
+                {showDescriptionSplice()}
+                <PanelRow>
+                  <label className='components-base-control__label wp-podcasts-305786-labels'>
+                    <RichText.Content
+                      tagName='h2'
+                      value={__("Change Font Color", "wp-podcasts-305786")}
+                    />
+                    <ColorPaletteControl
+                      value={episodeDescriptionSettings.descriptionColor}
+                      onChange={(color) =>
+                        setAttributes({
+                          episodeDescriptionSettings: {
+                            ...episodeDescriptionSettings,
+                            descriptionColor: color,
+                          },
+                        })
+                      }
+                    />
+                  </label>
+                </PanelRow>
+                <PanelRow>
+                  <label className='components-base-control__label wp-podcasts-305786-labels'>
+                    <RichText.Content
+                      tagName='h2'
+                      value={__("Change Font Size", "wp-podcasts-305786")}
+                    />
+                    <FontSizePicker
+                      fontSizes={fontSizesBody}
+                      value={episodeDescriptionSettings.descriptionFontSize}
+                      fallbackFontSize={16}
+                      onChange={(newFontSize) =>
+                        setAttributes({
+                          episodeDescriptionSettings: {
+                            ...episodeDescriptionSettings,
+                            descriptionFontSize: newFontSize,
                           },
                         })
                       }
