@@ -2,6 +2,105 @@
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
+/***/ "./node_modules/@wordpress/icons/build-module/icon/index.js":
+/*!******************************************************************!*\
+  !*** ./node_modules/@wordpress/icons/build-module/icon/index.js ***!
+  \******************************************************************/
+/***/ (function(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @wordpress/element */ "@wordpress/element");
+/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_0__);
+/**
+ * WordPress dependencies
+ */
+
+/** @typedef {{icon: JSX.Element, size?: number} & import('@wordpress/primitives').SVGProps} IconProps */
+
+/**
+ * Return an SVG icon.
+ *
+ * @param {IconProps} props icon is the SVG component to render
+ *                          size is a number specifiying the icon size in pixels
+ *                          Other props will be passed to wrapped SVG component
+ *
+ * @return {JSX.Element}  Icon component
+ */
+
+function Icon(_ref) {
+  let {
+    icon,
+    size = 24,
+    ...props
+  } = _ref;
+  return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.cloneElement)(icon, {
+    width: size,
+    height: size,
+    ...props
+  });
+}
+
+/* harmony default export */ __webpack_exports__["default"] = (Icon);
+//# sourceMappingURL=index.js.map
+
+/***/ }),
+
+/***/ "./node_modules/@wordpress/icons/build-module/library/check.js":
+/*!*********************************************************************!*\
+  !*** ./node_modules/@wordpress/icons/build-module/library/check.js ***!
+  \*********************************************************************/
+/***/ (function(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @wordpress/element */ "@wordpress/element");
+/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _wordpress_primitives__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @wordpress/primitives */ "@wordpress/primitives");
+/* harmony import */ var _wordpress_primitives__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_primitives__WEBPACK_IMPORTED_MODULE_1__);
+
+
+/**
+ * WordPress dependencies
+ */
+
+const check = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_primitives__WEBPACK_IMPORTED_MODULE_1__.SVG, {
+  xmlns: "http://www.w3.org/2000/svg",
+  viewBox: "0 0 24 24"
+}, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_primitives__WEBPACK_IMPORTED_MODULE_1__.Path, {
+  d: "M16.7 7.1l-6.3 8.5-3.3-2.5-.9 1.2 4.5 3.4L17.9 8z"
+}));
+/* harmony default export */ __webpack_exports__["default"] = (check);
+//# sourceMappingURL=check.js.map
+
+/***/ }),
+
+/***/ "./node_modules/@wordpress/icons/build-module/library/more.js":
+/*!********************************************************************!*\
+  !*** ./node_modules/@wordpress/icons/build-module/library/more.js ***!
+  \********************************************************************/
+/***/ (function(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @wordpress/element */ "@wordpress/element");
+/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _wordpress_primitives__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @wordpress/primitives */ "@wordpress/primitives");
+/* harmony import */ var _wordpress_primitives__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_primitives__WEBPACK_IMPORTED_MODULE_1__);
+
+
+/**
+ * WordPress dependencies
+ */
+
+const more = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_primitives__WEBPACK_IMPORTED_MODULE_1__.SVG, {
+  viewBox: "0 0 24 24",
+  xmlns: "http://www.w3.org/2000/svg"
+}, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_primitives__WEBPACK_IMPORTED_MODULE_1__.Path, {
+  d: "M4 9v1.5h16V9H4zm12 5.5h4V13h-4v1.5zm-6 0h4V13h-4v1.5zm-6 0h4V13H4v1.5z"
+}));
+/* harmony default export */ __webpack_exports__["default"] = (more);
+//# sourceMappingURL=more.js.map
+
+/***/ }),
+
 /***/ "./src/01-Episodes/index.js":
 /*!**********************************!*\
   !*** ./src/01-Episodes/index.js ***!
@@ -13,6 +112,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @wordpress/i18n */ "@wordpress/i18n");
 /* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _wordpress_icons__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @wordpress/icons */ "./node_modules/@wordpress/icons/build-module/icon/index.js");
+/* harmony import */ var _wordpress_icons__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @wordpress/icons */ "./node_modules/@wordpress/icons/build-module/library/more.js");
+/* harmony import */ var _wordpress_icons__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @wordpress/icons */ "./node_modules/@wordpress/icons/build-module/library/check.js");
 /* harmony import */ var _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @wordpress/block-editor */ "@wordpress/block-editor");
 /* harmony import */ var _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @wordpress/components */ "@wordpress/components");
@@ -21,6 +123,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _wordpress_blocks__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_wordpress_blocks__WEBPACK_IMPORTED_MODULE_4__);
 /* harmony import */ var _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @wordpress/api-fetch */ "@wordpress/api-fetch");
 /* harmony import */ var _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_5__);
+
 
 
 
@@ -216,8 +319,8 @@ __webpack_require__.r(__webpack_exports__);
       size: 36
     }];
     const [episodes, setEpisodes] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useState)([]);
-    const [allEpisodes, setAllEpisodes] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useState)([]);
     const [episodeTags, setEpisodeTags] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useState)([]);
+    const [isDragging, setDragging] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useState)(false);
     (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
       _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_5___default()({
         path: "/wp/v2/tags?per_page=100"
@@ -254,12 +357,9 @@ __webpack_require__.r(__webpack_exports__);
       });
     }, []);
     (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
-      const episodeQuery = episodeSettings.sort === "newest" ? _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_5___default()({
+      _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_5___default()({
         path: `/wp/v2/wp-podcasts-305786?per_page=${episodeSettings.amount}&page=${episodeSettings.currentPage}&filter[orderby]&order=${episodeSettings.order}`
-      }) : _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_5___default()({
-        path: `/wp/v2/wp-podcasts-305786?per_page=${episodeSettings.amount}&page=${episodeSettings.totalPages}&filter[orderby]&order=${episodeSettings.order}`
-      });
-      episodeQuery.then(posts => {
+      }).then(posts => {
         return posts;
       }).then(res => {
         setEpisodes(res);
@@ -281,11 +381,7 @@ __webpack_require__.r(__webpack_exports__);
       });
     };
     const onChangeAmountOfColumns = amount => {
-      if (amount > episodes.length || amount >= episodeSettings.totalEpisodes) return;
-      setAttributes({
-        amountOfColumns: amount,
-        gridClasses: "wp-podcasts-305786-flex wp-podcasts-305786-col-" + amount
-      });
+      if (amount >= episodeSettings.totalEpisodes || amount > 6) return;
       setAttributes({
         episodeSettings: {
           ...episodeSettings,
@@ -295,14 +391,12 @@ __webpack_require__.r(__webpack_exports__);
       });
     };
     const onChangeAmountOfEpisodes = amount => {
-      if (amount > 25 || amount >= episodeSettings.totalEpisodes) return;
-      setAttributes({
-        amountOfEpisodes: amount
-      });
+      if (amount > 25 || amount > episodeSettings.totalEpisodes) return;
       setAttributes({
         episodeSettings: {
           ...episodeSettings,
-          amount: amount
+          amount: amount,
+          currentPage: 1
         }
       });
     };
@@ -497,9 +591,10 @@ __webpack_require__.r(__webpack_exports__);
     };
     const showPagination = () => {
       if (episodeSettings.totalPages <= 1 || !episodeSettings.hasPagination) return;
+      let dynamicTotal = Math.ceil(Number(episodeSettings.totalEpisodes) / episodeSettings.amount);
       let paginationButtons = [];
       let i = 1;
-      while (episodeSettings.totalPages >= i) {
+      while (dynamicTotal >= i) {
         paginationButtons.push((0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
           value: i,
           className: `wp-podcasts-305786-pagination-button`,
@@ -514,10 +609,9 @@ __webpack_require__.r(__webpack_exports__);
         }, i));
         i++;
       }
-      let episodePagination = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+      return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
         className: "wp-podcasts-305786-pagination-wrapper"
       }, paginationButtons);
-      return episodePagination;
     };
     const showEpisodes = () => {
       if (episodes.length <= 0) return;
@@ -554,7 +648,42 @@ __webpack_require__.r(__webpack_exports__);
       className: "components-base-control"
     }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
       className: "components-base-control__field"
-    }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.PanelRow, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", {
+    }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.Draggable, {
+      elementId: "draggable-panel",
+      transferData: {}
+    }, _ref => {
+      let {
+        onDraggableStart,
+        onDraggableEnd
+      } = _ref;
+      const handleOnDragStart = event => {
+        if (event === null) return;
+        setDragging(true);
+        onDraggableStart(event);
+        console.log('drag start', event);
+      };
+      const handleOnDragEnd = event => {
+        if (event === null) return;
+        setDragging(false);
+        onDraggableEnd(event);
+        console.log('drag end', event);
+      };
+      return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+        className: "example-drag-handle",
+        draggable: true,
+        onDragStart: handleOnDragStart,
+        onDragEnd: handleOnDragEnd
+      }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_icons__WEBPACK_IMPORTED_MODULE_6__["default"], {
+        icon: _wordpress_icons__WEBPACK_IMPORTED_MODULE_7__["default"]
+      })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+        className: "example-drag-handle",
+        draggable: true,
+        onDragStart: handleOnDragStart,
+        onDragEnd: handleOnDragEnd
+      }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_icons__WEBPACK_IMPORTED_MODULE_6__["default"], {
+        icon: _wordpress_icons__WEBPACK_IMPORTED_MODULE_8__["default"]
+      })));
+    }), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.PanelRow, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", {
       className: "components-base-control__label wp-podcasts-305786-labels"
     }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.SelectControl, {
       label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Sort By:"),
@@ -591,7 +720,7 @@ __webpack_require__.r(__webpack_exports__);
     }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.RangeControl, {
       label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Number of Episodes"),
       help: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Filter by number if episodes you like to display"),
-      value: amountOfEpisodes,
+      value: episodeSettings.amount,
       min: 1,
       max: 25,
       onChange: amount => onChangeAmountOfEpisodes(amount)
@@ -600,7 +729,7 @@ __webpack_require__.r(__webpack_exports__);
     }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.RangeControl, {
       label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)("Number of Columns"),
       allowReset: true,
-      value: amountOfColumns,
+      value: episodeSettings.columns,
       min: 1,
       onChange: amount => onChangeAmountOfColumns(amount),
       max: 6
@@ -1080,7 +1209,7 @@ __webpack_require__.r(__webpack_exports__);
       }),
       withSlider: true
     })))))))), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("section", {
-      className: `wp-podcasts-305786-block wp-podcasts-305786-episodes ${gridClasses}`
+      className: `wp-podcasts-305786-block wp-podcasts-305786-episodes ${episodeSettings.classStyle}`
     }, showEpisodes(), showPagination())];
   },
   save(props) {
@@ -1327,6 +1456,16 @@ module.exports = window["wp"]["element"];
 /***/ (function(module) {
 
 module.exports = window["wp"]["i18n"];
+
+/***/ }),
+
+/***/ "@wordpress/primitives":
+/*!************************************!*\
+  !*** external ["wp","primitives"] ***!
+  \************************************/
+/***/ (function(module) {
+
+module.exports = window["wp"]["primitives"];
 
 /***/ })
 

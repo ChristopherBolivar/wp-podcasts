@@ -1,10 +1,12 @@
 import { __ } from "@wordpress/i18n";
+import { Icon, more, check } from '@wordpress/icons';
 import {
   InspectorControls,
   RichText,
   ColorPaletteControl,
   AlignmentToolbar,
 } from "@wordpress/block-editor";
+
 import {
   __experimentalInputControl as InputControl,
   Panel,
@@ -22,6 +24,7 @@ import {
   ToolbarButton,
   ToolbarGroup,
   ToolbarItem,
+  Draggable,
 } from "@wordpress/components";
 import { registerBlockType } from "@wordpress/blocks";
 import {
@@ -242,8 +245,8 @@ registerBlockType("wp-podcasts-305786/episodes", {
     ];
 
     const [episodes, setEpisodes] = useState([]);
-    const [allEpisodes, setAllEpisodes] = useState([]);
     const [episodeTags, setEpisodeTags] = useState([]);
+    const [ isDragging, setDragging ] = useState( false );
 
     useEffect(() => {
       apiFetch({ path: "/wp/v2/tags?per_page=100" })
@@ -259,7 +262,7 @@ registerBlockType("wp-podcasts-305786/episodes", {
           }
         });
 
-        const episodeQueryPages =
+      const episodeQueryPages =
         episodeSettings.sort === "newest"
           ? apiFetch({
               path: `/wp/v2/wp-podcasts-305786?per_page=${episodeSettings.amount}&page=${episodeSettings.currentPage}&filter[orderby]&order=${episodeSettings.order}`,
@@ -292,16 +295,9 @@ registerBlockType("wp-podcasts-305786/episodes", {
     }, []);
 
     useEffect(() => {
-      const episodeQuery =
-        episodeSettings.sort === "newest"
-          ? apiFetch({
-              path: `/wp/v2/wp-podcasts-305786?per_page=${episodeSettings.amount}&page=${episodeSettings.currentPage}&filter[orderby]&order=${episodeSettings.order}`,
-            })
-          : apiFetch({
-              path: `/wp/v2/wp-podcasts-305786?per_page=${episodeSettings.amount}&page=${episodeSettings.totalPages}&filter[orderby]&order=${episodeSettings.order}`,
-            });
-
-      episodeQuery
+      apiFetch({
+        path: `/wp/v2/wp-podcasts-305786?per_page=${episodeSettings.amount}&page=${episodeSettings.currentPage}&filter[orderby]&order=${episodeSettings.order}`,
+      })
         .then((posts) => {
           return posts;
         })
@@ -313,8 +309,6 @@ registerBlockType("wp-podcasts-305786/episodes", {
             console.log("Request has been aborted");
           }
         });
-
-    
     }, [episodeSettings]);
 
     const onChangeFilterByCatergory = (category) => {
@@ -325,12 +319,7 @@ registerBlockType("wp-podcasts-305786/episodes", {
     };
 
     const onChangeAmountOfColumns = (amount) => {
-      if (amount > episodes.length || amount >= episodeSettings.totalEpisodes)
-        return;
-      setAttributes({
-        amountOfColumns: amount,
-        gridClasses: "wp-podcasts-305786-flex wp-podcasts-305786-col-" + amount,
-      });
+      if (amount >= episodeSettings.totalEpisodes || amount > 6) return;
       setAttributes({
         episodeSettings: {
           ...episodeSettings,
@@ -342,10 +331,9 @@ registerBlockType("wp-podcasts-305786/episodes", {
     };
 
     const onChangeAmountOfEpisodes = (amount) => {
-      if (amount > 25 || amount >= episodeSettings.totalEpisodes) return;
-      setAttributes({ amountOfEpisodes: amount });
+      if (amount > 25 || amount > episodeSettings.totalEpisodes) return;
       setAttributes({
-        episodeSettings: { ...episodeSettings, amount: amount },
+        episodeSettings: { ...episodeSettings, amount: amount, currentPage: 1 },
       });
     };
 
@@ -601,12 +589,15 @@ registerBlockType("wp-podcasts-305786/episodes", {
     };
 
     const showPagination = () => {
-      if (episodeSettings.totalPages <= 1 || !episodeSettings.hasPagination) return;
-
+      if (episodeSettings.totalPages <= 1 || !episodeSettings.hasPagination)
+        return;
+      let dynamicTotal = Math.ceil(
+        Number(episodeSettings.totalEpisodes) / episodeSettings.amount
+      );
       let paginationButtons = [];
       let i = 1;
 
-      while (episodeSettings.totalPages >= i) {
+      while (dynamicTotal >= i) {
         paginationButtons.push(
           <button
             value={i}
@@ -626,14 +617,11 @@ registerBlockType("wp-podcasts-305786/episodes", {
         i++;
       }
 
-      let episodePagination = (
+      return (
         <div className='wp-podcasts-305786-pagination-wrapper'>
           {paginationButtons}
         </div>
       );
-    
-
-      return episodePagination;
     };
 
     const showEpisodes = () => {
@@ -694,6 +682,43 @@ registerBlockType("wp-podcasts-305786/episodes", {
           >
             <div className='components-base-control'>
               <div className='components-base-control__field'>
+                <Draggable elementId='draggable-panel' transferData={{}}>
+                { ( { onDraggableStart, onDraggableEnd } ) => {
+                    const handleOnDragStart = ( event ) => {
+                      if ( event === null ) return;
+                      setDragging( true );
+                      onDraggableStart( event );
+                      console.log( 'drag start', event );
+                    };
+                    const handleOnDragEnd = ( event ) => {
+                      if ( event === null ) return;
+                      setDragging( false );
+                      onDraggableEnd( event );
+                      console.log( 'drag end', event );
+                    };
+                 return  <>
+                    <div
+                      className='example-drag-handle'
+                      draggable
+                      onDragStart={handleOnDragStart}
+                      onDragEnd={handleOnDragEnd}
+                    >
+                      <Icon icon={more} />
+                      
+                    </div>
+                    <div
+                      className='example-drag-handle'
+                      draggable
+                      onDragStart={handleOnDragStart}
+                      onDragEnd={handleOnDragEnd}
+                    >
+                      <Icon icon={check} />
+                      
+                    </div>
+                    </>
+                    
+                  }}
+                </Draggable>
                 <PanelRow>
                   <label className='components-base-control__label wp-podcasts-305786-labels'>
                     <SelectControl
@@ -737,7 +762,7 @@ registerBlockType("wp-podcasts-305786/episodes", {
                       help={__(
                         "Filter by number if episodes you like to display"
                       )}
-                      value={amountOfEpisodes}
+                      value={episodeSettings.amount}
                       min={1}
                       max={25}
                       onChange={(amount) => onChangeAmountOfEpisodes(amount)}
@@ -749,7 +774,7 @@ registerBlockType("wp-podcasts-305786/episodes", {
                     <RangeControl
                       label={__("Number of Columns")}
                       allowReset
-                      value={amountOfColumns}
+                      value={episodeSettings.columns}
                       min={1}
                       onChange={(amount) => onChangeAmountOfColumns(amount)}
                       max={6}
@@ -766,7 +791,14 @@ registerBlockType("wp-podcasts-305786/episodes", {
                           : __("No  Pagination")
                       }
                       checked={episodeSettings.hasPagination}
-                      onChange={(e) => setAttributes({episodeSettings: { ...episodeSettings, hasPagination: e } })}
+                      onChange={(e) =>
+                        setAttributes({
+                          episodeSettings: {
+                            ...episodeSettings,
+                            hasPagination: e,
+                          },
+                        })
+                      }
                     />
                   </label>
                 </PanelRow>
@@ -1494,7 +1526,7 @@ registerBlockType("wp-podcasts-305786/episodes", {
       </InspectorControls>,
 
       <section
-        className={`wp-podcasts-305786-block wp-podcasts-305786-episodes ${gridClasses}`}
+        className={`wp-podcasts-305786-block wp-podcasts-305786-episodes ${episodeSettings.classStyle}`}
       >
         {showEpisodes()}
         {showPagination()}

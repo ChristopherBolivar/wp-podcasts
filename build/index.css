@@ -144,26 +144,26 @@ section[class*="wp-podcasts-305786-col"] article {
 }
 
 .wp-podcasts-305786-col-2 {
-  -ms-grid-columns: 45% 45%;
-  grid-template-columns: 45% 45%;
+  -ms-grid-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr;
 }
 
 .wp-podcasts-305786-col-3 {
-  -ms-grid-columns: 33% 33% 33%;
-  grid-template-columns: 33% 33% 33%;
+  -ms-grid-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
 }
 .wp-podcasts-305786-col-4 {
-  -ms-grid-columns: 25% 25% 25% 25%;
-  grid-template-columns: 25% 25% 25% 25%;
+  -ms-grid-columns: 1fr 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
 }
 .wp-podcasts-305786-col-5 {
-  -ms-grid-columns: 20% 20% 20% 20% 20%;
-  grid-template-columns: 20% 20% 20% 20% 20%;
+  -ms-grid-columns: 1fr 1fr 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
 }
 
-.wp-podcast-305786-col-6 {
-  -ms-grid-columns: 16.666% 16.666% 16.666% 16.666% 16.666% 16.666%;
-  grid-template-columns: 16.666% 16.666% 16.666% 16.666% 16.666% 16.666%;
+.wp-podcasts-305786-col-6 {
+  -ms-grid-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
 }
 
 @media only screen and (max-width: 600px) {

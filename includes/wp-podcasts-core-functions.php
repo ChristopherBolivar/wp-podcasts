@@ -34,22 +34,11 @@ function wp_podcasts_305786_import_rss_feed(){
 			$desc      	      = $episodeCategories;
 			$time             = $itunes->duration;
 			$pubDate          = $item->pubDate;
-			$podcastAuthor    =  $item->author;
+			$podcastAuthor    =  $itunes->author;
 			$podcastSubtitle  = $itunes->subtitle;
 			$wpPodcastPubDate = date("Y-m-d H:i:s", strtotime($pubDate));
 			$existing_episode = get_page_by_path( sanitize_title( $title ), 'OBJECT', 'wp-podcasts-305786');
-			// Add Featured Image to Post
-			$image_url        = preg_replace(
-								"/(.+(\.(jpg|gif|jp2|png|bmp|jpeg|svg)))(.*)$/",
-								'${1}',
-								$itunes->image->attributes());
-			$image_name       = sanitize_url( $image_url );
-			$upload_dir       = wp_upload_dir(); // Set upload folder
-			$image_data       = file_get_contents($image_url); // Get image data
-			$unique_file_name = wp_unique_filename( $upload_dir['path'], $image_name ); // Generate unique name
-			$filename         = basename( $unique_file_name ); // Create image file name
-
-			wp_create_category( $itunes->category );
+		
 	
 			if( $existing_episode === null ){
 			
@@ -74,6 +63,18 @@ function wp_podcasts_305786_import_rss_feed(){
 				)
 
 			]);
+				
+				// Add Featured Image to Post
+				$image_url        = !empty($itunes->image->attributes()) ? preg_replace(
+					"/(.+(\.(jpg|gif|jp2|png|bmp|jpeg|svg)))(.*)$/",
+					'${1}',
+					$itunes->image->attributes()) : 'https://thehappycustomerchannel.com/wp-content/uploads/2022/07/thcc-logo-1-2048x2048.webp' ;
+					$image_name       = sanitize_url( $image_url );
+					$upload_dir       = wp_upload_dir(); // Set upload folder
+					$image_data       = file_get_contents($image_url); // Get image data
+					$unique_file_name = wp_unique_filename( $upload_dir['path'], $image_name ); // Generate unique name
+					$filename         = basename( $unique_file_name ); // Create image file name
+
 
 			// Check folder permission and define file location
 			if( wp_mkdir_p( $upload_dir['path'] ) ) {
@@ -114,6 +115,7 @@ function wp_podcasts_305786_import_rss_feed(){
 			
 
 					}
+				
 				}
 	 
 	};
