@@ -17,7 +17,7 @@ if ( ! defined( 'WPINC' ) ) {
  * Author = get_post_meta( get_the_ID(), 'wp_podcasts_305786_author', true )
  */
 class Wp_podcasts_305786_meta_box {
-	private $config = '{"title":"Episode Information","prefix":"wp_podcasts_305786_","domain":"wp_podcasts_305786","class_name":"Wp_podcasts_305786_meta_box","context":"normal","priority":"default","cpt":"wp-podcasts-305786","fields":[{"type":"url","label":"Thumbnail","id":"wp_podcasts_305786_thumbnail"},{"type":"url","label":"File URL","id":"wp_podcasts_305786_file-url"},{"type":"editor","label":"Subtitle","id":"wp_podcasts_305786_subtitle"},{"type":"editor","label":"Description","id":"wp_podcasts_305786_description"},{"type":"text","label":"Duration","id":"wp_podcasts_305786_duration"},{"type":"text","label":"Author","id":"wp_podcasts_305786_author"}]}';
+	private $config = '{"title":"Episode Information","prefix":"wp_podcasts_305786_","domain":"wp_podcasts_305786","class_name":"Wp_podcasts_305786_meta_box","context":"normal","priority":"default","cpt":"wp-podcasts-305786","fields":[{"type":"url","label":"Thumbnail","id":"wp_podcasts_305786_thumbnail"},{"type":"url","label":"File URL","id":"wp_podcasts_305786_file_url"},{"type":"editor","label":"Subtitle","id":"wp_podcasts_305786_subtitle"},{"type":"editor","label":"Description","id":"wp_podcasts_305786_description"},{"type":"text","label":"Duration","id":"wp_podcasts_305786_duration"},{"type":"text","label":"Author","id":"wp_podcasts_305786_author"}]}';
 
 	public function __construct() {
 		$this->config = json_decode( $this->config, true );

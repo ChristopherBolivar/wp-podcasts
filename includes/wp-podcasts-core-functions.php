@@ -54,7 +54,7 @@ function wp_podcasts_305786_import_rss_feed(){
 				
 				'meta_input'   => array(
 					'wp_podcasts_305786_thumbnail' => sanitize_url( $image_url ) ,
-					'wp_podcasts_305786_file-url' => sanitize_url( $url ),
+					'wp_podcasts_305786_file_url' => sanitize_url( $url ),
 					'wp_podcasts_305786_subtitle' => esc_html__( $podcastSubtitle ),
 					'wp_podcasts_305786_description' => esc_html__( $episodeDescription ),
 					'wp_podcasts_305786_duration' =>  esc_html__( $time ),

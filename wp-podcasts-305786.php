@@ -233,6 +233,19 @@ function wp_podcasts_305786_register_blocks() {
         'editor_script' => 'wp-podcasts-305786-episodes',
         'render_callback' => 'wp_podcasts_305786_register_blocks_render_callback'
     ) );
+	//regiter block for the podcast player
+	wp_register_script(
+		'wp-podcasts-305786-player',
+		plugins_url( 'build/player.js', __FILE__ ),
+		$asset_file['dependencies'],
+		$asset_file['version']
+	);
+
+	register_block_type( 'wp-podcasts-305786/player', array(
+		'editor_script' => 'wp-podcasts-305786-player',
+		'render_callback' => 'wp_podcasts_305786_register_blocks_render_callback'
+	) );
+	
 
 }
 add_action( 'init', 'wp_podcasts_305786_register_blocks' );

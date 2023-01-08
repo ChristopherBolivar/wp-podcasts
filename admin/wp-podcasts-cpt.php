@@ -56,6 +56,7 @@ function wp_podcasts_cpt_305786() {
 		'exclude_from_search'   => false,
 		'publicly_queryable'    => true,
 		'capability_type'       => 'post',
+		
 	);
 	register_post_type( 'wp-podcasts-305786', $args );
 
