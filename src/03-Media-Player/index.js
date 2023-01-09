@@ -161,9 +161,6 @@ registerBlockType("wp-podcasts-305786/player", {
                   <div className='wp-podcasts-305786-search-result-title'>
                     {episode.title.rendered}
                   </div>
-                  <div className='wp-podcasts-305786-search-result-subtitle'>
-                    {episode.podcast_data.wp_podcasts_305786_subtitle[0]}
-                  </div>
                 </div>
               );
             })}

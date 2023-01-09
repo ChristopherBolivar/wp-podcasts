@@ -1381,9 +1381,7 @@ __webpack_require__.r(__webpack_exports__);
           className: "wp-podcasts-305786-search-result"
         }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
           className: "wp-podcasts-305786-search-result-title"
-        }, episode.title.rendered), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-          className: "wp-podcasts-305786-search-result-subtitle"
-        }, episode.podcast_data.wp_podcasts_305786_subtitle[0]));
+        }, episode.title.rendered));
       })));
     };
 

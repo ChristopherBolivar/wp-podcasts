@@ -173,7 +173,7 @@ section[class*="wp-podcasts-305786-col"] article {
   padding: 1rem;
 }
 
-.wp-podcasts-305786-search-term {
+.wp-podcasts-305786-search-result {
   display: block;
   width: 100%;
   padding: 0.5rem;
@@ -183,11 +183,12 @@ section[class*="wp-podcasts-305786-col"] article {
   margin: 0.25rem auto;
   text-align: left;
 }
-.wp-podcasts-305786-search-term:focus {
+.wp-podcasts-305786-search-result:focus {
   outline: none;
   box-shadow: 0 0 0 2px #fff, 0 0 0 4px #0073aa;
+  background: hsl(0 0% 80% / .1);
 }
-.wp-podcasts-305786-search-term:hover{
+.wp-podcasts-305786-search-result:hover{
   background: hsl(0 0% 80% / .4);
 }
 
