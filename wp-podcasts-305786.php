@@ -154,8 +154,8 @@ function wp_podcasts_305786_options_default() {
 
 }
 
-add_filter( 'cron_schedules', 'example_add_cron_interval' );
-function example_add_cron_interval( $schedules ) { 
+add_filter( 'cron_schedules', 'wp_podcasts_305786_add_cron_interval' );
+function wp_podcasts_305786_add_cron_interval( $schedules ) { 
     $schedules['five_seconds'] = array(
         'interval' => 5,
         'display'  => esc_html__( 'Every Five Seconds' ), );
