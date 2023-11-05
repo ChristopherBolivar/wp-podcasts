@@ -46,6 +46,7 @@ registerBlockType("wp-podcasts-305786/episodes", {
       type: "object",
       default: {
         sort: "asc",
+        order: "asc",
         category: "all",
         amount: 1,
         columns: 1,
@@ -272,6 +273,8 @@ registerBlockType("wp-podcasts-305786/episodes", {
               path: `/wp/v2/wp-podcasts-305786?per_page=${episodeSettings.amount}&page=${episodeSettings.totalPages}&filter[orderby]&order=${episodeSettings.order}`,
               parse: false,
             });
+
+            console.log(episodeQueryPages)
 
       episodeQueryPages
         .then((posts) => {

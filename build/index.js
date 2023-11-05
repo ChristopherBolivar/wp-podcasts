@@ -141,6 +141,7 @@ __webpack_require__.r(__webpack_exports__);
       type: "object",
       default: {
         sort: "asc",
+        order: "asc",
         category: "all",
         amount: 1,
         columns: 1,
@@ -340,6 +341,7 @@ __webpack_require__.r(__webpack_exports__);
         path: `/wp/v2/wp-podcasts-305786?per_page=${episodeSettings.amount}&page=${episodeSettings.totalPages}&filter[orderby]&order=${episodeSettings.order}`,
         parse: false
       });
+      console.log(episodeQueryPages);
       episodeQueryPages.then(posts => {
         return posts;
       }).then(res => {
